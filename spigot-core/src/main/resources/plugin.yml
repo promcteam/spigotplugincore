@@ -1,0 +1,5 @@
+name: SpigotCore
+main: com.gotofinal.darkrise.core.DarkRiseCore
+author: GotoFinal
+version: ${rise.version}
+softdepend: [WorldEdit, WorldGuard, ProtocolLib, TerrainControl]

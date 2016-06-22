@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>spigot-parent</artifactId>
+        <groupId>com.gotofinal.darkrise</groupId>
+        <version>1.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>spigot-core-build</artifactId>
+
+    <properties>
+        <rise.dir>${project.basedir}/../</rise.dir>
+    </properties>
+
+    <name>SpigotCore</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.gotofinal.darkrise</groupId>
+            <artifactId>spigot-core-1.9r2</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>
