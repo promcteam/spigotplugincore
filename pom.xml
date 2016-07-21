@@ -22,10 +22,6 @@
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.caversia.plugins.economy</groupId>
-            <artifactId>caversia-economy-plugin</artifactId>
-        </dependency>
     </dependencies>
 
 </project>

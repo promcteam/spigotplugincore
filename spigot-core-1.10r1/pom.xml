@@ -9,27 +9,18 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>spigot-core</artifactId>
+    <artifactId>spigot-core-1.10r1</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>com.gotofinal.darkrise</groupId>
-            <artifactId>project-core</artifactId>
+            <artifactId>spigot-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>net.milkbowl.vault</groupId>
-            <artifactId>VaultAPI</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.bukkit</groupId>
-                    <artifactId>bukkit</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.reflections</groupId>
-            <artifactId>reflections</artifactId>
-            <version>0.9.10</version>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot</artifactId>
+            <version>1.10-R0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
+
 </project>
