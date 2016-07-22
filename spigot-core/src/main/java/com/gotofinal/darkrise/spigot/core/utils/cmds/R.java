@@ -47,6 +47,15 @@ public class R
         return StringUtils.replace(str, this.from, this.to.get());
     }
 
+    public static String use(String str, R... r)
+    {
+        for (final R r1 : r)
+        {
+            str = r1.use(str);
+        }
+        return str;
+    }
+
     @Override
     public String toString()
     {
