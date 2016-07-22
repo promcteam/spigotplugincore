@@ -89,7 +89,7 @@ public class DeserializationWorker
     public <T extends ConfigurationSerializable, C extends Collection<T>> C deserializeCollection(C collection, final String name, final Class<? extends T> clazz, Collection<? extends T> def)
     {
         def = (def == null) ? Collections.emptyList() : def;
-        Map<String, Object> section = this.getSection(name);
+        Object section = this.data.get(name);
         if (section == null)
         {
             collection.addAll(def);

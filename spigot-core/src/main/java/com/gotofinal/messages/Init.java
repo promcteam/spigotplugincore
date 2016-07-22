@@ -5,6 +5,7 @@ import com.gotofinal.darkrise.core.DarkRisePlugin;
 import com.gotofinal.darkrise.core.PlayerLocation;
 import com.gotofinal.darkrise.spigot.core.DarkRiseCore;
 import com.gotofinal.darkrise.spigot.core.Vault;
+import com.gotofinal.diggler.core.nms.NMSPlayerUtils;
 import com.gotofinal.messages.api.chat.placeholder.PlaceholderType;
 
 import org.bukkit.Location;
@@ -18,6 +19,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import net.md_5.bungee.api.chat.TextComponent;
 
 public class Init
 {
@@ -78,8 +81,18 @@ public class Init
         WORLD.registerItem("folder", w -> w.getWorldFolder().getPath());
         ITEM.registerItem("amount", ItemStack::getAmount);
         ITEM.registerItem("durability", ItemStack::getDurability);
-        ITEM.registerItem("material", i -> i.getType().name().toLowerCase());
-        ITEM.registerItem("displayName", i -> i.getItemMeta().getDisplayName());
+        ITEM.registerItem("material", i ->
+        {
+            TextComponent textComponent = new TextComponent(i.getType().name().toLowerCase());
+            textComponent.setHoverEvent(NMSPlayerUtils.convert(i));
+            return textComponent;
+        });
+        ITEM.registerItem("displayName", i ->
+        {
+            TextComponent textComponent = new TextComponent(i.getItemMeta().hasDisplayName() ? i.getItemMeta().getDisplayName() : "");
+            textComponent.setHoverEvent(NMSPlayerUtils.convert(i));
+            return textComponent;
+        });
         ITEM.registerItem("lore", i -> i.getItemMeta().getLore());
 
         ENCHANTMENT.registerItem("id", Enchantment::getId);

@@ -8,6 +8,7 @@ import com.gotofinal.darkrise.core.DarkRisePlugin;
 import com.gotofinal.darkrise.core.annotation.EventListener;
 import com.gotofinal.darkrise.core.annotation.InvokeOn;
 import com.gotofinal.darkrise.core.utils.ReflectionLibraryUtils;
+import com.gotofinal.darkrise.spigot.core.DarkRiseCore;
 
 import org.apache.commons.lang3.Validate;
 import org.bukkit.event.Listener;
@@ -50,7 +51,8 @@ public final class EventListenerAnnotation
                     listener = (Listener) constructor.invoke(plugin);
                 }
 
-                plugin.getServer().getPluginManager().registerEvents(listener, plugin);
+                Listener listenerCpy = listener;
+                plugin.getServer().getScheduler().runTask(DarkRiseCore.getInstance(), () -> plugin.getServer().getPluginManager().registerEvents(listenerCpy, plugin));
             }
             catch (Exception e)
             {

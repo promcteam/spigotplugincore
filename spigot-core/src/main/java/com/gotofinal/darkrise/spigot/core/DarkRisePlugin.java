@@ -9,6 +9,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
+import com.gotofinal.darkrise.core.annotation.InvokeOn.InvokeType;
+import com.gotofinal.darkrise.core.annotation.InvokeOnAnnotation;
 import com.gotofinal.darkrise.core.commands.CommandMap;
 import com.gotofinal.diggler.core.CorePlugin;
 import com.gotofinal.messages.api.MessageReceiver;
@@ -38,6 +40,10 @@ public abstract class DarkRisePlugin extends CorePlugin
     protected Messages          messages;
     protected BukkitMessagesAPI messagesAPI;
 
+    {
+        com.gotofinal.darkrise.core.DarkRisePlugin.Handler.addPlugin(this);
+    }
+
     public CommandMap<CommandSender> getCommandMap()
     {
         return DarkRiseCore.getInstance().getCommandMap();
@@ -57,6 +63,8 @@ public abstract class DarkRisePlugin extends CorePlugin
     public void onEnable()
     {
         Vault.init();
+        super.onEnable();
+        InvokeOnAnnotation.invoke(InvokeType.ENABLE_OF, this);
     }
 
     public void reloadConfigs()
@@ -212,9 +220,10 @@ public abstract class DarkRisePlugin extends CorePlugin
     public void reloadMessages()
     {
         final File langFolder = new File(this.getDataFolder(), "lang");
-        this.messagesAPI = new BukkitMessagesAPI(this, Locale.forLanguageTag("pl"));
+        this.messagesAPI = new BukkitMessagesAPI(this, Locale.forLanguageTag("en"));
         final MessageLoader messageLoader = this.messagesAPI.getMessageLoader();
         Messages messages = messageLoader.loadMessages("lang_", langFolder, this.getClass(), "/lang/");
+        messageLoader.saveMessages(messages, langFolder, "lang_");
         DarkRiseCore core = this.getCore();
         if (this != core)
         {
@@ -223,9 +232,15 @@ public abstract class DarkRisePlugin extends CorePlugin
         }
         else
         {
-            this.messages = messages;
+            if (this.messages != null)
+            {
+                this.messages.joinMessages(messages);
+            }
+            else
+            {
+                this.messages = messages;
+            }
         }
-        messageLoader.saveMessages(this.messages, langFolder, "lang_");
     }
 
     @Override
@@ -233,12 +248,14 @@ public abstract class DarkRisePlugin extends CorePlugin
     {
         this.reloadMessages();
         super.onLoad();
+        InvokeOnAnnotation.invoke(InvokeType.LOAD_OF, this);
     }
 
     @Override
     public void onDisable()
     {
         super.onDisable();
+        InvokeOnAnnotation.invoke(InvokeType.DISABLE_OF, this);
     }
 
     public Messages getMessages()

@@ -1,8 +1,10 @@
 package com.gotofinal.diggler.core.nms;
 
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 
 public class NMSPlayerUtils implements INMSWrapper
@@ -32,5 +34,10 @@ public class NMSPlayerUtils implements INMSWrapper
     public static void sendMessage(final String msg, final ChatPosition chatPosition, final Player player)
     {
         inst.sendMessage(new BaseComponent[]{new TextComponent(msg)}, chatPosition, player);
+    }
+
+    public static HoverEvent convert(final ItemStack itemStack)
+    {
+        return inst.convert(itemStack);
     }
 }

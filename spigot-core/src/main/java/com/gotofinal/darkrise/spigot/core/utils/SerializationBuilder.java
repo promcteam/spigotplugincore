@@ -13,7 +13,14 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.bukkit.Location;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
-public class SerializationBuilder
+import org.diorite.utils.math.ByteRange;
+import org.diorite.utils.math.DoubleRange;
+import org.diorite.utils.math.FloatRange;
+import org.diorite.utils.math.IntRange;
+import org.diorite.utils.math.LongRange;
+import org.diorite.utils.math.ShortRange;
+
+public final class SerializationBuilder
 {
     private final Map<String, Object> data;
 
@@ -64,11 +71,36 @@ public class SerializationBuilder
         return this.append(str, sb);
     }
 
+    @SuppressWarnings("TailRecursion")
     public SerializationBuilder append(final String str, Object object)
     {
         if (object instanceof Enum)
         {
             return this.append(str, (Enum<?>) object);
+        }
+        if (object instanceof ByteRange)
+        {
+            return this.append(str, ((ByteRange) object).getMin() + "-" + ((ByteRange) object).getMax());
+        }
+        if (object instanceof ShortRange)
+        {
+            return this.append(str, ((ShortRange) object).getMin() + "-" + ((ShortRange) object).getMax());
+        }
+        if (object instanceof IntRange)
+        {
+            return this.append(str, ((IntRange) object).getMin() + "-" + ((IntRange) object).getMax());
+        }
+        if (object instanceof LongRange)
+        {
+            return this.append(str, ((LongRange) object).getMin() + "-" + ((LongRange) object).getMax());
+        }
+        if (object instanceof FloatRange)
+        {
+            return this.append(str, ((FloatRange) object).getMin() + "-" + ((FloatRange) object).getMax());
+        }
+        if (object instanceof DoubleRange)
+        {
+            return this.append(str, ((DoubleRange) object).getMin() + "-" + ((DoubleRange) object).getMax());
         }
         if (object instanceof ConfigurationSerializable)
         {

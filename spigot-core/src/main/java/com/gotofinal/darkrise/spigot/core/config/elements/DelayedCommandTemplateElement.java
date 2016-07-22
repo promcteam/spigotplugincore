@@ -5,7 +5,10 @@ import java.util.Map;
 
 import com.gotofinal.darkrise.spigot.core.utils.cmds.DelayedCommand;
 
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
+
 import org.diorite.cfg.system.CfgEntryData;
+import org.diorite.cfg.system.elements.MapTemplateElement;
 import org.diorite.cfg.system.elements.TemplateElement;
 
 public class DelayedCommandTemplateElement extends TemplateElement<DelayedCommand>
@@ -43,6 +46,6 @@ public class DelayedCommandTemplateElement extends TemplateElement<DelayedComman
     @Override
     public void appendValue(final Appendable writer, final CfgEntryData field, final Object source, final Object element, final int level, final ElementPlace elementPlace) throws IOException
     {
-
+        MapTemplateElement.INSTANCE.appendValue(writer, field, source, ((ConfigurationSerializable) element).serialize(), level, elementPlace);
     }
 }

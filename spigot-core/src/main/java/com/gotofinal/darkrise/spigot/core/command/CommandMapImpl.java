@@ -221,7 +221,7 @@ public class CommandMapImpl implements CommandMap<CommandSender>
         }
         if (sender instanceof Player)
         {
-            Bukkit.getConsoleSender().sendMessage(sender.getName() + ": " + Command.COMMAND_PREFIX + cmdLine);
+//            Bukkit.getConsoleSender().sendMessage(sender.getName() + ": " + Command.COMMAND_PREFIX + cmdLine);
         }
         final String command = args[0];
         final String[] newArgs;

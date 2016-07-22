@@ -1,13 +1,16 @@
 package com.gotofinal.darkrise.spigot.core.command;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
-import com.gotofinal.darkrise.spigot.core.DarkRiseCore;
 import com.gotofinal.darkrise.core.commands.Command;
+import com.gotofinal.darkrise.core.commands.PluginCommand;
+import com.gotofinal.darkrise.core.commands.SubCommand;
+import com.gotofinal.darkrise.spigot.core.DarkRiseCore;
 import com.gotofinal.messages.api.MessageReceiver;
 import com.gotofinal.messages.api.chat.utils.ComponentUtils;
 import com.gotofinal.messages.api.messages.Message;
@@ -44,9 +47,45 @@ public interface CommandExecutor extends com.gotofinal.darkrise.core.commands.Co
         return this.onTabComplete(sender, command, label, matchedPattern, (Arguments) args);
     }
 
+    @SuppressWarnings("unchecked")
+    default void sendUsage(String usage, CommandSender sender, Command<CommandSender> command, Arguments arguments)
+    {
+        List<String> strs = new ArrayList<>(20);
+        Command<CommandSender> cmd = command;
+        while (true)
+        {
+            strs.add(cmd.getName());
+            if (cmd instanceof SubCommand)
+            {
+                cmd = ((SubCommand<CommandSender>) cmd).getParent();
+                continue;
+            }
+            if (cmd instanceof PluginCommand)
+            {
+                break;
+            }
+        }
+        StringBuilder sb = new StringBuilder(100);
+        for (int i = strs.size() - 1; i >= 0; i--)
+        {
+            sb.append(strs.get(i));
+            if (i != 0)
+            {
+                sb.append(' ');
+            }
+        }
+        String s = sb.toString();
+        this.sendMessage(usage, sender, new MessageData("text", (s.isEmpty() ?  "" : s + " ") + arguments.asText()));
+    }
+
     default DarkRiseCore getCore()
     {
         return DarkRiseCore.getInstance();
+    }
+
+    default boolean checkPermission(CommandSender sender, String perm)
+    {
+        return this.getCore().checkPermission(sender, perm);
     }
 
     default void broadcast(final String message)

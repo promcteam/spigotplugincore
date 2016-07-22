@@ -7,6 +7,7 @@ import com.gotofinal.darkrise.core.annotation.InvokeOnAnnotation;
 import com.gotofinal.darkrise.core.commands.CommandMap;
 import com.gotofinal.darkrise.spigot.core.command.CommandMapImpl;
 import com.gotofinal.darkrise.spigot.core.config.CoreConfig;
+import com.gotofinal.darkrise.spigot.core.config.elements.ConfigurationSerializableTemplateDeserializer;
 import com.gotofinal.darkrise.spigot.core.config.elements.DelayedCommandTemplateElement;
 import com.gotofinal.darkrise.spigot.core.config.elements.PotionEffectTemplateElement;
 import com.gotofinal.darkrise.spigot.core.listeners.PlayerListener;
@@ -15,9 +16,11 @@ import com.gotofinal.messages.Init;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 
+import org.diorite.cfg.system.deserializers.TemplateDeserializers;
 import org.diorite.cfg.system.elements.TemplateElements;
 
 public class DarkRiseCore extends DarkRisePlugin
@@ -50,12 +53,15 @@ public class DarkRiseCore extends DarkRisePlugin
     {
         TemplateElements.getElements().addFirst(PotionEffect.class.getName(), PotionEffectTemplateElement.INSTANCE);
         TemplateElements.getElements().addFirst(DelayedCommand.class.getName(), DelayedCommandTemplateElement.INSTANCE);
+        TemplateDeserializers.getElements().addFirst(DelayedCommand.class.getName(), new ConfigurationSerializableTemplateDeserializer<>(DelayedCommand.class));
+        TemplateDeserializers.getElements().addFirst(ConfigurationSerializable.class.getName(), new ConfigurationSerializableTemplateDeserializer<>(ConfigurationSerializable.class));
     }
 
     private static DarkRiseCore instance;
 
     {
         instance = this;
+        com.gotofinal.darkrise.core.DarkRisePlugin.Handler.setPlugin(this);
     }
 
     public static DarkRiseCore getInstance()
