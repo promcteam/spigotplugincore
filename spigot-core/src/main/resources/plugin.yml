@@ -5,3 +5,4 @@ version: ${rise.version}
 load: startup
 loadbefore: [Economy]
 softdepend: [WorldEdit, WorldGuard, ProtocolLib, TerrainControl]
+depend: [LibraryPack]
