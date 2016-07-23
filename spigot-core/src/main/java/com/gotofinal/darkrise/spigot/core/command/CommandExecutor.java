@@ -75,12 +75,22 @@ public interface CommandExecutor extends com.gotofinal.darkrise.core.commands.Co
             }
         }
         String s = sb.toString();
-        this.sendMessage(usage, sender, new MessageData("text", (s.isEmpty() ?  "" : s + " ") + arguments.asText()));
+        this.sendMessage(usage, sender, new MessageData("text", (s.isEmpty() ? "" : s + " ") + arguments.asText()));
     }
 
     default DarkRiseCore getCore()
     {
         return DarkRiseCore.getInstance();
+    }
+
+    default boolean isPlayer(CommandSender sender)
+    {
+        if (sender instanceof Player)
+        {
+            return true;
+        }
+        this.sendMessage("senderIsNotPlayer", sender);
+        return false;
     }
 
     default boolean checkPermission(CommandSender sender, String perm)

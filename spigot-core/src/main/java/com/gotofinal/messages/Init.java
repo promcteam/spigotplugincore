@@ -8,8 +8,10 @@ import com.gotofinal.darkrise.spigot.core.Vault;
 import com.gotofinal.diggler.core.nms.NMSPlayerUtils;
 import com.gotofinal.messages.api.chat.placeholder.PlaceholderType;
 
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
@@ -22,9 +24,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import net.md_5.bungee.api.chat.TextComponent;
 
-public class Init
+public final class Init
 {
     public static final PlaceholderType<Location>    LOCATION    = PlaceholderType.create("location", Location.class);
+    public static final PlaceholderType<Block>       BLOCK       = PlaceholderType.create("block", Block.class);
+    public static final PlaceholderType<Chunk>       CHUNK       = PlaceholderType.create("chunk", Chunk.class);
     public static final PlaceholderType<Enchantment> ENCHANTMENT = PlaceholderType.create("enchantment", Enchantment.class);
     public static final PlaceholderType<Command>     COMMAND     = PlaceholderType.create("command", Command.class);
     public static final PlaceholderType<Plugin>      PLUGIN      = PlaceholderType.create("plugin", Plugin.class);
@@ -43,11 +47,29 @@ public class Init
 
     public static final PlaceholderType<World> WORLD = PlaceholderType.create("world", World.class);
 
+    private Init()
+    {
+    }
+
     public static void load()
     {
         BLOCK_LOCATION.registerItem("x", BlockLocation::getX);
         BLOCK_LOCATION.registerItem("y", BlockLocation::getY);
         BLOCK_LOCATION.registerItem("z", BlockLocation::getZ);
+        BLOCK.registerItem("z", Block::getZ);
+        BLOCK.registerItem("x", Block::getX);
+        BLOCK.registerItem("y", Block::getY);
+        BLOCK.registerItem("type", b -> b.getType().name().toLowerCase());
+        BLOCK.registerItem("biome", b -> b.getBiome().name().toLowerCase());
+        BLOCK.registerItem("blockPower", Block::getBlockPower);
+        BLOCK.registerItem("tmperature", b -> ((int) (b.getTemperature() * 10)) / 10);
+        BLOCK.registerItem("humidity", b -> ((int) (b.getHumidity() * 10)) / 10);
+        BLOCK.registerItem("lightFromBlocks", Block::getLightFromBlocks);
+        BLOCK.registerItem("lightFromSky", Block::getLightFromSky);
+        BLOCK.registerItem("lightLevel", Block::getLightLevel);
+        BLOCK.registerItem("chunkX", (block) -> block.getChunk().getX());
+        BLOCK.registerItem("chunkZ", (block) -> block.getChunk().getZ());
+        BLOCK.registerItem("world", (block) -> block.getWorld().getName());
         PLAYER_LOCATION.registerItem("x", (location) -> ((int) (location.getX() * 10)) / 10);
         PLAYER_LOCATION.registerItem("y", (location) -> ((int) (location.getY() * 10)) / 10);
         PLAYER_LOCATION.registerItem("z", (location) -> ((int) (location.getZ() * 10)) / 10);
@@ -122,6 +144,10 @@ public class Init
         JAVA_PLUGIN.registerItem("softDepend", p -> p.getDescription().getSoftDepend());
         JAVA_PLUGIN.registerItem("loadBefore", p -> p.getDescription().getLoadBefore());
 
+        BLOCK.registerChild("chunk", CHUNK, Block::getChunk);
+        BLOCK.registerChild("world", WORLD, Block::getWorld);
+        BLOCK.registerChild("blockLocation", BLOCK_LOCATION, b -> new BlockLocation(b.getX(), b.getY(), b.getZ()));
+        CHUNK.registerChild("world", WORLD, Chunk::getWorld);
         RISE_PLUGIN.registerChild("core", CORE, p -> ((DarkRiseCore) p.getCore()));
         PLAYER.registerChild("world", WORLD, Player::getWorld);
         ENTITY.registerChild("location", LOCATION, Entity::getLocation);
