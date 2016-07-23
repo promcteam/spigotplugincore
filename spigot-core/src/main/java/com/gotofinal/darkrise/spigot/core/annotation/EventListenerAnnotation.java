@@ -35,7 +35,7 @@ public final class EventListenerAnnotation
             Class<? extends DarkRisePlugin> value = entry.getValue();
             try
             {
-                MethodInvoker method = DioriteReflectionUtils.getTypedMethod(value, null, value);
+                MethodInvoker method = DioriteReflectionUtils.getTypedMethod(value, "getInstance", value);
                 com.gotofinal.darkrise.spigot.core.DarkRisePlugin plugin = (com.gotofinal.darkrise.spigot.core.DarkRisePlugin) method.invoke(null);
 
                 ConstructorInvoker constructor;
