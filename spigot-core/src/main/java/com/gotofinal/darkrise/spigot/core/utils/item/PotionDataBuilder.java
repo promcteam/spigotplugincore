@@ -6,18 +6,18 @@ import java.util.Map;
 import com.gotofinal.darkrise.spigot.core.utils.DeserializationWorker;
 import com.gotofinal.darkrise.spigot.core.utils.SerializationBuilder;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import org.bukkit.potion.PotionType;
 
 public class PotionDataBuilder extends DataBuilder
 {
     protected Map<PotionEffectType, PotionData> potions = new LinkedHashMap<>(5);
-    protected PotionEffectType main;
+    protected org.bukkit.potion.PotionData basePotionDate;
 
     public PotionDataBuilder()
     {
@@ -27,7 +27,11 @@ public class PotionDataBuilder extends DataBuilder
     public PotionDataBuilder(final Map<String, Object> map)
     {
         final DeserializationWorker w = DeserializationWorker.start(map);
-        this.main = PotionEffectType.getByName(w.getString("main", "SPEED"));
+        String mainName = w.getString("main");
+        PotionType potionType = w.getEnum("potionType", PotionType.class, PotionType.WATER);
+        boolean isExtended = w.getBoolean("isExtended", false);
+        boolean isUpgraded = w.getBoolean("isUpgraded", false);
+        this.basePotionDate = new org.bukkit.potion.PotionData(potionType, isExtended, isUpgraded);
         final Map<Object, Map<Object, Object>> effects = w.getTypedObject("effects");
         for (final Map.Entry<Object, Map<Object, Object>> entry : effects.entrySet())
         {
@@ -46,9 +50,9 @@ public class PotionDataBuilder extends DataBuilder
         return this.potions;
     }
 
-    public PotionEffectType getMain()
+    public org.bukkit.potion.PotionData getBasePotionDate()
     {
-        return this.main;
+        return this.basePotionDate;
     }
 
     public PotionDataBuilder potions(final Map<PotionEffectType, PotionData> potions)
@@ -100,9 +104,9 @@ public class PotionDataBuilder extends DataBuilder
         return this;
     }
 
-    public PotionDataBuilder main(final PotionEffectType type)
+    public PotionDataBuilder potionData(final org.bukkit.potion.PotionData type)
     {
-        this.main = type;
+        this.basePotionDate = type;
         return this;
     }
 
@@ -120,9 +124,9 @@ public class PotionDataBuilder extends DataBuilder
             final PotionData data = entry.getValue();
             meta.addCustomEffect(new PotionEffect(entry.getKey(), data.time, data.power, data.ambient), true);
         }
-        if (this.main != null)
+        if (this.basePotionDate != null)
         {
-            meta.setMainEffect(this.main);
+            meta.setBasePotionData(this.basePotionDate);
         }
     }
 
@@ -136,7 +140,7 @@ public class PotionDataBuilder extends DataBuilder
         final PotionMeta meta = (PotionMeta) itemMeta;
         if (meta.hasCustomEffects())
         {
-            this.main = meta.getCustomEffects().get(0).getType();
+            this.basePotionDate = meta.getBasePotionData();
         }
         for (final PotionEffect effect : meta.getCustomEffects())
         {
@@ -155,7 +159,18 @@ public class PotionDataBuilder extends DataBuilder
     public Map<String, Object> serialize()
     {
         final SerializationBuilder b = SerializationBuilder.start(3).append(super.serialize());
-        b.append("main", this.main.getName());
+        if (this.basePotionDate != null)
+        {
+            b.append("potionType", this.basePotionDate.getType());
+            b.append("isExtended", this.basePotionDate.isExtended());
+            b.append("isUpgraded", this.basePotionDate.isUpgraded());
+        }
+        else
+        {
+            b.append("potionType", PotionType.WATER);
+            b.append("isExtended", false);
+            b.append("isUpgraded", false);
+        }
         final SerializationBuilder effects = SerializationBuilder.start(this.potions.size());
         for (final Map.Entry<PotionEffectType, PotionData> entry : this.potions.entrySet())
         {
@@ -173,7 +188,7 @@ public class PotionDataBuilder extends DataBuilder
     @Override
     public String toString()
     {
-        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).appendSuper(super.toString()).append("potions", this.potions).append("main", this.main).toString();
+        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).appendSuper(super.toString()).append("potions", this.potions).append("main", this.basePotionDate).toString();
     }
 
     public class PotionData

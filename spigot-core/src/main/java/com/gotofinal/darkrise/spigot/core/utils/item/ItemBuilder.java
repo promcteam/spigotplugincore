@@ -501,7 +501,7 @@ public class ItemBuilder implements ConfigurationSerializable
         b.append("unbreakable", this.unbreakable);
         b.append("name", this.name);
         b.append("lore", this.lore);
-        b.append("flags", (this.flags == null) ? new ArrayList<>(1) : this.flags.stream().map(Enum::name).collect(Collectors.toList()));
+        b.append("flags", (this.flags == null) ? new ArrayList<ItemFlag>(1) : this.flags.stream().map(Enum::name).collect(Collectors.toList()));
         final SerializationBuilder enchant = SerializationBuilder.start(this.enchants.size());
         for (final Map.Entry<Enchantment, Integer> entry : this.enchants.entrySet())
         {
