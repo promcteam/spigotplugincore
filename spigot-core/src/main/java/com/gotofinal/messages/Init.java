@@ -111,6 +111,10 @@ public final class Init
         });
         ITEM.registerItem("displayName", i ->
         {
+            if (! i.hasItemMeta())
+            {
+                return "";
+            }
             TextComponent textComponent = new TextComponent(i.getItemMeta().hasDisplayName() ? i.getItemMeta().getDisplayName() : "");
             textComponent.setHoverEvent(NMSPlayerUtils.convert(i));
             return textComponent;

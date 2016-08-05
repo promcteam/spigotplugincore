@@ -81,7 +81,7 @@ public abstract class DarkRisePlugin extends CorePlugin
     {
         if (! sender.hasPermission(s))
         {
-            this.sendMessage("noPermission", sender, new MessageData("permission", s));
+            this.sendMessage("noPermissions", sender, new MessageData("permission", s));
             return false;
         }
         return true;

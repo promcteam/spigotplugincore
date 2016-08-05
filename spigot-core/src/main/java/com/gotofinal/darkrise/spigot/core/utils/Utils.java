@@ -9,12 +9,15 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.gotofinal.darkrise.core.BlockLocation;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.FireworkEffect.Type;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -24,6 +27,11 @@ public final class Utils
 
     private Utils()
     {
+    }
+
+    public static BlockLocation fromBlock(Block block)
+    {
+        return new BlockLocation(block.getX(), block.getY(), block.getZ());
     }
 
     public static Integer parseInt(final String num)
