@@ -18,10 +18,10 @@ import net.minecraft.server.v1_10_R1.PacketPlayOutChat;
 public class NMSPlayerUtils implements INMSPlayerUtils
 {
     @Override
-    public void sendMessage(final BaseComponent[] msg, final ChatPosition chatPosition, final Player player)
+    public void sendMessage(BaseComponent[] msg, ChatPosition chatPosition, Player player)
     {
-        final CraftPlayer p = (CraftPlayer) player;
-        final PacketPlayOutChat packet = new PacketPlayOutChat(null, (byte) chatPosition.ordinal());
+        CraftPlayer p = (CraftPlayer) player;
+        PacketPlayOutChat packet = new PacketPlayOutChat(null, (byte) chatPosition.ordinal());
         packet.components = msg;
         p.getHandle().playerConnection.sendPacket(packet);
     }

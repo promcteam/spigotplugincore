@@ -10,10 +10,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.gotofinal.darkrise.spigot.core.nms.Attributes;
+import com.gotofinal.darkrise.spigot.core.nms.Attributes.Attribute;
 import com.gotofinal.darkrise.spigot.core.utils.DeserializationWorker;
 import com.gotofinal.darkrise.spigot.core.utils.SerializationBuilder;
 import com.gotofinal.darkrise.spigot.core.utils.Utils;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
@@ -30,9 +34,6 @@ import org.bukkit.inventory.meta.MapMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
-
 public class ItemBuilder implements ConfigurationSerializable
 {
     protected Material material    = Material.AIR;
@@ -44,6 +45,7 @@ public class ItemBuilder implements ConfigurationSerializable
     protected Map<Enchantment, Integer> enchants    = new LinkedHashMap<>(3);
     protected DataBuilder               dataBuilder = null;
     protected List<ItemFlag>            flags       = new ArrayList<>(5);
+    protected List<Attribute>           attributes  = new ArrayList<>(2);
     //  protected UnaryOperator<String> func;
 
     public ItemBuilder()
@@ -51,20 +53,21 @@ public class ItemBuilder implements ConfigurationSerializable
     }
 
     @SuppressWarnings("unchecked")
-    public ItemBuilder(final Map<String, Object> map)
+    public ItemBuilder(Map<String, Object> map)
     {
-        final DeserializationWorker w = DeserializationWorker.start(map);
+        DeserializationWorker w = DeserializationWorker.start(map);
         this.material = Utils.getMaterial(w.getString("material", "AIR"));
         this.amount = w.getInt("amount", 1);
         this.durability = w.getShort("durability");
         this.name = w.getString("name", null);
         this.unbreakable = w.getBoolean("unbreakable", false);
+        this.attributes.addAll(w.<Map<String, Object>>getList("attributes", new ArrayList<>(1)).stream().map(Attribute::new).collect(Collectors.toList()));
         this.lore = w.getStringList("lore", new ArrayList<>(3));
         this.flags = w.getStringList("flags", new ArrayList<>(1)).stream().map(s -> ItemFlag.valueOf(s.toUpperCase())).collect(Collectors.toList());
-        final Map<String, Object> enchantsMap = w.getSection("enchants");
+        Map<String, Object> enchantsMap = w.getSection("enchants");
         if (enchantsMap != null)
         {
-            for (final Map.Entry<String, Object> entry : enchantsMap.entrySet())
+            for (Map.Entry<String, Object> entry : enchantsMap.entrySet())
             {
                 this.enchants.put(Enchantment.getByName(entry.getKey()), ((Number) entry.getValue()).intValue());
             }
@@ -75,7 +78,10 @@ public class ItemBuilder implements ConfigurationSerializable
     @Override
     public String toString()
     {
-        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).appendSuper(super.toString()).append("material", this.material).append("amount", this.amount).append("durability", this.durability).append("name", this.name).append("lore", this.lore).append("enchants", this.enchants).append("dataBuilder", this.dataBuilder).toString();
+        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).appendSuper(super.toString()).append("material", this.material)
+                                                                          .append("amount", this.amount).append("durability", this.durability)
+                                                                          .append("name", this.name).append("lore", this.lore).append("enchants", this.enchants)
+                                                                          .append("dataBuilder", this.dataBuilder).toString();
     }
 
     public Material getMaterial()
@@ -123,19 +129,19 @@ public class ItemBuilder implements ConfigurationSerializable
         return this.dataBuilder;
     }
 
-    public ItemBuilder unbreakable(final boolean flag)
+    public ItemBuilder unbreakable(boolean flag)
     {
         this.unbreakable = flag;
         return this;
     }
 
-    public ItemBuilder unbreakable(final ItemMeta meta)
+    public ItemBuilder unbreakable(ItemMeta meta)
     {
         this.unbreakable = meta.spigot().isUnbreakable();
         return this;
     }
 
-    public ItemBuilder flag(final ItemFlag flag)
+    public ItemBuilder flag(ItemFlag flag)
     {
         this.flags.add(flag);
         return this;
@@ -147,54 +153,54 @@ public class ItemBuilder implements ConfigurationSerializable
         return this;
     }
 
-    public ItemBuilder flag(final ItemFlag... flags)
+    public ItemBuilder flag(ItemFlag... flags)
     {
         Collections.addAll(this.flags, flags);
         return this;
     }
 
-    public ItemBuilder flag(final ItemMeta meta)
+    public ItemBuilder flag(ItemMeta meta)
     {
         this.flags.addAll(meta.getItemFlags());
         return this;
     }
 
-    public ItemBuilder material(final Material material)
+    public ItemBuilder material(Material material)
     {
         this.material = material;
         return this;
     }
 
-    public ItemBuilder material(final ItemStack source)
+    public ItemBuilder material(ItemStack source)
     {
         this.material = source.getType();
         return this;
     }
 
-    public ItemBuilder durability(final int damage)
+    public ItemBuilder durability(int damage)
     {
         return this.durability((short) damage);
     }
 
-    public ItemBuilder durability(final short damage)
+    public ItemBuilder durability(short damage)
     {
         this.durability = damage;
         return this;
     }
 
-    public ItemBuilder durability(final ItemStack source)
+    public ItemBuilder durability(ItemStack source)
     {
         this.durability = source.getDurability();
         return this;
     }
 
-    public ItemBuilder amount(final int amount)
+    public ItemBuilder amount(int amount)
     {
         this.amount = amount;
         return this;
     }
 
-    public ItemBuilder amount(final ItemStack source)
+    public ItemBuilder amount(ItemStack source)
     {
         this.amount = source.getAmount();
         return this;
@@ -206,13 +212,13 @@ public class ItemBuilder implements ConfigurationSerializable
 //        return this;
 //    }
 
-    public ItemBuilder name(final String name)
+    public ItemBuilder name(String name)
     {
         this.name = name;
         return this;
     }
 
-    public ItemBuilder name(final ItemMeta source)
+    public ItemBuilder name(ItemMeta source)
     {
         this.name = Utils.removeColors(source.getDisplayName());
         return this;
@@ -224,85 +230,85 @@ public class ItemBuilder implements ConfigurationSerializable
         return this;
     }
 
-    public ItemBuilder lore(final List<String> lore)
+    public ItemBuilder lore(List<String> lore)
     {
         this.lore = (lore == null) ? new ArrayList<String>(5) : new ArrayList<>(lore);
         return this;
     }
 
-    public ItemBuilder lore(final ItemMeta source)
+    public ItemBuilder lore(ItemMeta source)
     {
         this.lore = source.hasLore() ? Utils.removeColors(new ArrayList<>(source.getLore())) : new ArrayList<String>(5);
         return this;
     }
 
-    public ItemBuilder newLoreLine(final String lore)
+    public ItemBuilder newLoreLine(String lore)
     {
         this.lore.add(lore);
         return this;
     }
 
-    public ItemBuilder newLoreLine(final Object lore)
+    public ItemBuilder newLoreLine(Object lore)
     {
         this.lore.add(lore.toString());
         return this;
     }
 
-    public ItemBuilder newLoreLine(final Collection<String> lore)
+    public ItemBuilder newLoreLine(Collection<String> lore)
     {
         this.lore.addAll(lore);
         return this;
     }
 
-    public ItemBuilder newLoreLine(final String... lore)
+    public ItemBuilder newLoreLine(String... lore)
     {
         this.newLoreLine(Arrays.asList(lore));
         return this;
     }
 
-    public ItemBuilder insertLoreLine(final int index, final String lore)
+    public ItemBuilder insertLoreLine(int index, String lore)
     {
         this.lore.add(index, lore);
         return this;
     }
 
-    public ItemBuilder insertLoreLine(final int index, final Collection<String> lore)
+    public ItemBuilder insertLoreLine(int index, Collection<String> lore)
     {
         this.lore.addAll(index, lore);
         return this;
     }
 
-    public ItemBuilder insertLoreLine(final int index, final String... lore)
+    public ItemBuilder insertLoreLine(int index, String... lore)
     {
         this.insertLoreLine(index, Arrays.asList(lore));
         return this;
     }
 
-    public ItemBuilder removeLoreLine(final String lore)
+    public ItemBuilder removeLoreLine(String lore)
     {
         this.lore.remove(lore);
         return this;
     }
 
-    public ItemBuilder removeLoreLine(final Collection<String> lore)
+    public ItemBuilder removeLoreLine(Collection<String> lore)
     {
         this.lore.removeAll(lore);
         return this;
     }
 
-    public ItemBuilder removeLoreLine(final String... lore)
+    public ItemBuilder removeLoreLine(String... lore)
     {
         this.removeLoreLine(Arrays.asList(lore));
         return this;
     }
 
-    public ItemBuilder removeLoreLine(final int lore)
+    public ItemBuilder removeLoreLine(int lore)
     {
         this.lore.remove(lore);
         return this;
     }
 
-    public ItemBuilder setLoreLine(final int index, final String lore)
+    public ItemBuilder setLoreLine(int index, String lore)
     {
         this.lore.set(index, lore);
         return this;
@@ -314,31 +320,74 @@ public class ItemBuilder implements ConfigurationSerializable
         return this;
     }
 
-    public ItemBuilder enchant(final Map<Enchantment, Integer> enchants)
+    public ItemBuilder addAttribute(Attribute attribute)
+    {
+        this.attributes.add(attribute);
+        return this;
+    }
+
+    public ItemBuilder addAttributes(Iterable<Attribute> attributes)
+    {
+        for (Attribute attribute : attributes)
+        {
+            this.attributes.add(attribute);
+        }
+        return this;
+    }
+
+    public ItemBuilder addAttributes(Attribute... attributes)
+    {
+        Collections.addAll(this.attributes, attributes);
+        return this;
+    }
+
+    public ItemBuilder withAttributes(Iterable<Attribute> attributes)
+    {
+        this.attributes.clear();
+        for (Attribute attribute : attributes)
+        {
+            this.attributes.add(attribute);
+        }
+        return this;
+    }
+
+    public ItemBuilder withAttributes(ItemStack item)
+    {
+        Attributes attributes = new Attributes(item.clone());
+        return this.withAttributes(attributes.values());
+    }
+
+    public ItemBuilder clearAttributes()
+    {
+        this.attributes.clear();
+        return this;
+    }
+
+    public ItemBuilder enchant(Map<Enchantment, Integer> enchants)
     {
         this.enchants = new LinkedHashMap<>(enchants);
         return this;
     }
 
-    public ItemBuilder enchant(final ItemMeta source)
+    public ItemBuilder enchant(ItemMeta source)
     {
         this.enchants = source.hasEnchants() ? new LinkedHashMap<>(source.getEnchants()) : new LinkedHashMap<Enchantment, Integer>(3);
         return this;
     }
 
-    public ItemBuilder enchant(final Enchantment enchantment, final int power)
+    public ItemBuilder enchant(Enchantment enchantment, int power)
     {
         this.enchants.put(enchantment, power);
         return this;
     }
 
-    public ItemBuilder enchant(final Enchantment enchantment)
+    public ItemBuilder enchant(Enchantment enchantment)
     {
         this.enchant(enchantment, 1);
         return this;
     }
 
-    public ItemBuilder unEnchant(final Enchantment enchantment)
+    public ItemBuilder unEnchant(Enchantment enchantment)
     {
         this.enchants.remove(enchantment);
         return this;
@@ -350,13 +399,13 @@ public class ItemBuilder implements ConfigurationSerializable
         return this;
     }
 
-    public ItemBuilder data(final DataBuilder dataBuilder)
+    public ItemBuilder data(DataBuilder dataBuilder)
     {
         this.dataBuilder = dataBuilder;
         return this;
     }
 
-    public ItemBuilder data(final ItemMeta meta)
+    public ItemBuilder data(ItemMeta meta)
     {
         // TODO: maybe find some way to do that more OOP
         if (meta instanceof BookMeta)
@@ -400,9 +449,9 @@ public class ItemBuilder implements ConfigurationSerializable
 
     public ItemStack build()
     {
-        final ItemStack item = new ItemStack(this.material, this.amount, this.durability);
+        ItemStack item = new ItemStack(this.material, this.amount, this.durability);
 //        this.applyFunc();
-        final ItemMeta meta = Bukkit.getItemFactory().getItemMeta(this.material);
+        ItemMeta meta = Bukkit.getItemFactory().getItemMeta(this.material);
         if (this.name != null)
         {
             meta.setDisplayName(Utils.fixColors(this.name));
@@ -413,8 +462,8 @@ public class ItemBuilder implements ConfigurationSerializable
         }
         if ((this.lore != null) && ! this.lore.isEmpty())
         {
-            final List<String> lore = new ArrayList<>(this.lore.size() + 5);
-            for (final String loreLine : this.lore)
+            List<String> lore = new ArrayList<>(this.lore.size() + 5);
+            for (String loreLine : this.lore)
             {
                 Collections.addAll(lore, loreLine.split("\n"));
             }
@@ -423,7 +472,7 @@ public class ItemBuilder implements ConfigurationSerializable
         }
         if (this.enchants != null)
         {
-            for (final Map.Entry<Enchantment, Integer> entry : this.enchants.entrySet())
+            for (Map.Entry<Enchantment, Integer> entry : this.enchants.entrySet())
             {
                 meta.addEnchant(entry.getKey(), entry.getValue(), true);
             }
@@ -433,6 +482,15 @@ public class ItemBuilder implements ConfigurationSerializable
             this.dataBuilder.apply(meta);
         }
         item.setItemMeta(meta);
+        if (! this.attributes.isEmpty())
+        {
+            Attributes attributes = new Attributes(item);
+            for (Attribute attribute : this.attributes)
+            {
+                attributes.add(attribute);
+            }
+            item = attributes.getStack();
+        }
         return item;
     }
 
@@ -448,7 +506,8 @@ public class ItemBuilder implements ConfigurationSerializable
 //        }
 //        if ((this.lore != null) && ! this.lore.isEmpty())
 //        {
-//            this.lore = Stream.of(this.func.apply(StringUtils.join(this.lore, '\n')).split("\n")).filter(s -> ! s.equals("<NO-LINE>")).collect(Collectors.toList());
+//            this.lore = Stream.of(this.func.apply(StringUtils.join(this.lore, '\n')).split("\n")).filter(s -> ! s.equals("<NO-LINE>")).collect(Collectors
+// .toList());
 //        }
 //        if (this.dataBuilder != null)
 //        {
@@ -462,6 +521,7 @@ public class ItemBuilder implements ConfigurationSerializable
         this.amount = 1;
         this.durability = 0;
         this.name = null;
+        this.attributes.clear();
         if (this.flags != null)
         {
             this.flags.clear();
@@ -494,16 +554,17 @@ public class ItemBuilder implements ConfigurationSerializable
     @Override
     public Map<String, Object> serialize()
     {
-        final SerializationBuilder b = SerializationBuilder.start(7);
+        SerializationBuilder b = SerializationBuilder.start(7);
         b.append("material", this.material);
         b.append("amount", this.amount);
         b.append("durability", this.durability);
         b.append("unbreakable", this.unbreakable);
+        b.append("attributes", this.attributes.stream().map(Attribute::serialize).collect(Collectors.toList()));
         b.append("name", this.name);
         b.append("lore", this.lore);
         b.append("flags", (this.flags == null) ? new ArrayList<ItemFlag>(1) : this.flags.stream().map(Enum::name).collect(Collectors.toList()));
-        final SerializationBuilder enchant = SerializationBuilder.start(this.enchants.size());
-        for (final Map.Entry<Enchantment, Integer> entry : this.enchants.entrySet())
+        SerializationBuilder enchant = SerializationBuilder.start(this.enchants.size());
+        for (Map.Entry<Enchantment, Integer> entry : this.enchants.entrySet())
         {
             enchant.append(entry.getKey().getName(), entry.getValue());
         }
@@ -512,19 +573,19 @@ public class ItemBuilder implements ConfigurationSerializable
         return b.build();
     }
 
-    public static ItemBuilder newItem(final Material material)
+    public static ItemBuilder newItem(Material material)
     {
         return new ItemBuilder().material(material);
     }
 
-    public static ItemBuilder newItem(final ItemStack itemStack)
+    public static ItemBuilder newItem(ItemStack itemStack)
     {
         if (itemStack == null)
         {
             return new ItemBuilder();
         }
-        final ItemBuilder itemBuilder = new ItemBuilder().material(itemStack).amount(itemStack).durability(itemStack);
-        final ItemMeta meta = Utils.getItemMeta(itemStack);
+        ItemBuilder itemBuilder = new ItemBuilder().material(itemStack).amount(itemStack).durability(itemStack).withAttributes(itemStack);
+        ItemMeta meta = Utils.getItemMeta(itemStack);
         if (meta == null)
         {
             return itemBuilder;

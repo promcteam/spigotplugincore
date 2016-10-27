@@ -5,6 +5,7 @@ import com.gotofinal.darkrise.core.DarkRisePlugin;
 import com.gotofinal.darkrise.core.PlayerLocation;
 import com.gotofinal.darkrise.spigot.core.DarkRiseCore;
 import com.gotofinal.darkrise.spigot.core.Vault;
+import com.gotofinal.darkrise.spigot.core.utils.ExperienceManager;
 import com.gotofinal.diggler.core.nms.NMSPlayerUtils;
 import com.gotofinal.messages.api.chat.placeholder.PlaceholderType;
 
@@ -16,6 +17,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -120,6 +122,11 @@ public final class Init
             return textComponent;
         });
         ITEM.registerItem("lore", i -> i.getItemMeta().getLore());
+
+        PLAYER.registerItem("xpLevel", Player::getLevel);
+        PLAYER.registerItem("exp", Player::getExp);
+        PLAYER.registerItem("totalExperience", ExperienceManager::getTotalExperience);
+        PLAYER.registerItem("expToLevel", HumanEntity::getExpToLevel);
 
         ENCHANTMENT.registerItem("id", Enchantment::getId);
         ENCHANTMENT.registerItem("name", Enchantment::getName);

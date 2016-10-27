@@ -54,7 +54,7 @@ public abstract class DarkRisePlugin extends CorePlugin
         Bukkit.getScheduler().runTask(this, runnable);
     }
 
-    public void error(final Object obj)
+    public void error(Object obj)
     {
         this.getLogger().warning(obj.toString());
     }
@@ -87,12 +87,12 @@ public abstract class DarkRisePlugin extends CorePlugin
         return true;
     }
 
-    public <T> T loadConfigFile(final File f, Class<T> type)
+    public <T> T loadConfigFile(File f, Class<T> type)
     {
         T config;
         try
         {
-            final Template<T> cfgTemp = TemplateCreator.getTemplate(type);
+            Template<T> cfgTemp = TemplateCreator.getTemplate(type);
             if (f.exists())
             {
                 try
@@ -103,7 +103,7 @@ public abstract class DarkRisePlugin extends CorePlugin
                         config = cfgTemp.fillDefaults(type.newInstance());
                     }
                 }
-                catch (final IOException e)
+                catch (IOException e)
                 {
                     throw new RuntimeException("IO exception when loading config file: " + f, e);
                 }
@@ -115,7 +115,7 @@ public abstract class DarkRisePlugin extends CorePlugin
                 {
                     DioriteUtils.createFile(f);
                 }
-                catch (final IOException e)
+                catch (IOException e)
                 {
                     throw new RuntimeException("Can't create configuration file!", e);
                 }
@@ -124,12 +124,12 @@ public abstract class DarkRisePlugin extends CorePlugin
             {
                 cfgTemp.dump(f, config, false);
             }
-            catch (final IOException e)
+            catch (IOException e)
             {
                 throw new RuntimeException("Can't dump configuration file!", e);
             }
         }
-        catch (final Exception e)
+        catch (Exception e)
         {
             throw new RuntimeException("Can't create configuration file!", e);
         }
@@ -141,17 +141,17 @@ public abstract class DarkRisePlugin extends CorePlugin
         return this.getServer().getScheduler();
     }
 
-    public <T> Future<T> callSyncMethod(final Callable<T> callable)
+    public <T> Future<T> callSyncMethod(Callable<T> callable)
     {
         return this.getScheduler().callSyncMethod(this, callable);
     }
 
-    public void cancelTask(final int i)
+    public void cancelTask(int i)
     {
         this.getScheduler().cancelTask(i);
     }
 
-    public void cancelTasks(final Plugin plugin)
+    public void cancelTasks(Plugin plugin)
     {
         this.getScheduler().cancelTasks(plugin);
     }
@@ -161,18 +161,17 @@ public abstract class DarkRisePlugin extends CorePlugin
         this.getScheduler().cancelTasks(this);
     }
 
-
     public void cancelAllTasks()
     {
         this.getScheduler().cancelAllTasks();
     }
 
-    public boolean isCurrentlyRunning(final int i)
+    public boolean isCurrentlyRunning(int i)
     {
         return this.getScheduler().isCurrentlyRunning(i);
     }
 
-    public boolean isQueued(final int i)
+    public boolean isQueued(int i)
     {
         return this.getScheduler().isQueued(i);
     }
@@ -187,41 +186,41 @@ public abstract class DarkRisePlugin extends CorePlugin
         return this.getScheduler().getPendingTasks();
     }
 
-    public BukkitTask runTask(final Runnable runnable) throws IllegalArgumentException
+    public BukkitTask runTask(Runnable runnable) throws IllegalArgumentException
     {
         return this.getScheduler().runTask(this, runnable);
     }
 
-    public BukkitTask runTaskAsynchronously(final Runnable runnable) throws IllegalArgumentException
+    public BukkitTask runTaskAsynchronously(Runnable runnable) throws IllegalArgumentException
     {
         return this.getScheduler().runTaskAsynchronously(this, runnable);
     }
 
-    public BukkitTask runTaskLater(final Runnable runnable, final long l) throws IllegalArgumentException
+    public BukkitTask runTaskLater(Runnable runnable, long l) throws IllegalArgumentException
     {
         return this.getScheduler().runTaskLater(this, runnable, l);
     }
 
-    public BukkitTask runTaskLaterAsynchronously(final Runnable runnable, final long l) throws IllegalArgumentException
+    public BukkitTask runTaskLaterAsynchronously(Runnable runnable, long l) throws IllegalArgumentException
     {
         return this.getScheduler().runTaskLaterAsynchronously(this, runnable, l);
     }
 
-    public BukkitTask runTaskTimer(final Runnable runnable, final long l, final long l1) throws IllegalArgumentException
+    public BukkitTask runTaskTimer(Runnable runnable, long l, long l1) throws IllegalArgumentException
     {
         return this.getScheduler().runTaskTimer(this, runnable, l, l1);
     }
 
-    public BukkitTask runTaskTimerAsynchronously(final Runnable runnable, final long l, final long l1) throws IllegalArgumentException
+    public BukkitTask runTaskTimerAsynchronously(Runnable runnable, long l, long l1) throws IllegalArgumentException
     {
         return this.getScheduler().runTaskTimerAsynchronously(this, runnable, l, l1);
     }
 
     public void reloadMessages()
     {
-        final File langFolder = new File(this.getDataFolder(), "lang");
+        File langFolder = new File(this.getDataFolder(), "lang");
         this.messagesAPI = new BukkitMessagesAPI(this, Locale.forLanguageTag("en"));
-        final MessageLoader messageLoader = this.messagesAPI.getMessageLoader();
+        MessageLoader messageLoader = this.messagesAPI.getMessageLoader();
         Messages messages = messageLoader.loadMessages("lang_", langFolder, this.getClass(), "/lang/");
         messageLoader.saveMessages(messages, langFolder, "lang_");
         DarkRiseCore core = this.getCore();
@@ -263,109 +262,109 @@ public abstract class DarkRisePlugin extends CorePlugin
         return this.messages;
     }
 
-    public Message getMessage(final String... path)
+    public Message getMessage(String... path)
     {
         return this.messages.getMessage(path);
     }
 
-    public Message getMessage(final String path)
+    public Message getMessage(String path)
     {
         return this.messages.getMessage(path);
     }
 
-    public String getMessageAsString(final String path, final String def, final MessageData... data)
+    public String getMessageAsString(String path, String def, MessageData... data)
     {
-        final Message message = this.messages.getMessage(path);
+        Message message = this.messages.getMessage(path);
         if (message == null)
         {
             return def;
         }
-        final BaseComponent[] baseComponent = message.get(null, data);
+        BaseComponent[] baseComponent = message.get(null, data);
         return (baseComponent == null) ? def : ComponentUtils.toLegacyText(baseComponent);
     }
 
-    public BaseComponent[] getMessageAsComponent(final String path, final BaseComponent[] def, final MessageData... data)
+    public BaseComponent[] getMessageAsComponent(String path, BaseComponent[] def, MessageData... data)
     {
-        final Message message = this.messages.getMessage(path);
+        Message message = this.messages.getMessage(path);
         if (message == null)
         {
             return def;
         }
-        final BaseComponent[] baseComponent = message.get(null, data);
+        BaseComponent[] baseComponent = message.get(null, data);
         return ((baseComponent == null) || (baseComponent.length == 0)) ? def : baseComponent;
     }
 
-    public BaseComponent[] getMessageAsComponent(final String path, final MessageData... data)
+    public BaseComponent[] getMessageAsComponent(String path, MessageData... data)
     {
         return this.getMessageAsComponent(path, DioriteArrayUtils.getEmptyObjectArray(BaseComponent.class), data);
     }
 
-    public boolean sendMessage(final String path, final CommandSender target, final MessageData... data)
+    public boolean sendMessage(String path, CommandSender target, MessageData... data)
     {
         return this.messages.sendMessage(path, this.messagesAPI.wrap(target), data);
     }
 
-    public boolean broadcastMessage(final String path, final Collection<? extends CommandSender> targets, final Locale lang, final MessageData... data)
+    public boolean broadcastMessage(String path, Collection<? extends CommandSender> targets, Locale lang, MessageData... data)
     {
         return this.messages.broadcastMessage(path, targets.stream().map(t -> this.messagesAPI.wrap(t)).collect(Collectors.toList()), lang, data);
     }
 
-    public boolean broadcastStaticMessage(final String path, final Collection<? extends CommandSender> targets, final Locale lang, final MessageData... data)
+    public boolean broadcastStaticMessage(String path, Collection<? extends CommandSender> targets, Locale lang, MessageData... data)
     {
         return this.messages.broadcastStaticMessage(path, targets.stream().map(t -> this.messagesAPI.wrap(t)).collect(Collectors.toList()), lang, data);
     }
 
-    public boolean broadcastMessage(final String path, final MessageData... data)
+    public boolean broadcastMessage(String path, MessageData... data)
     {
         return this.messages.broadcastMessage(path, data);
     }
 
-    public boolean broadcastMessage(final String path, final Collection<? extends CommandSender> targets, final MessageData... data)
+    public boolean broadcastMessage(String path, Collection<? extends CommandSender> targets, MessageData... data)
     {
         return this.messages.broadcastMessage(path, targets.stream().map(t -> this.messagesAPI.wrap(t)).collect(Collectors.toList()), data);
     }
 
-    public boolean sendMessage(final String path, final MessageReceiver target, final MessageData... data)
+    public boolean sendMessage(String path, MessageReceiver target, MessageData... data)
     {
         return this.messages.sendMessage(path, target, data);
     }
 
-    public boolean broadcastMessage(final String path, final Iterable<? extends MessageReceiver> targets, final Locale lang, final MessageData... data)
+    public boolean broadcastMessage(String path, Iterable<? extends MessageReceiver> targets, Locale lang, MessageData... data)
     {
         return this.messages.broadcastMessage(path, targets, lang, data);
     }
 
-    public boolean broadcastMessage(final String path, final Iterable<? extends MessageReceiver> targets, final MessageData... data)
+    public boolean broadcastMessage(String path, Iterable<? extends MessageReceiver> targets, MessageData... data)
     {
         return this.messages.broadcastMessage(path, targets, data);
     }
 
-    public boolean broadcastStaticMessage(final String path, final Iterable<? extends MessageReceiver> targets, final Locale lang, final MessageData... data)
+    public boolean broadcastStaticMessage(String path, Iterable<? extends MessageReceiver> targets, Locale lang, MessageData... data)
     {
         return this.messages.broadcastStaticMessage(path, targets, lang, data);
     }
 
-    public Messages getMessages(final String path)
+    public Messages getMessages(String path)
     {
         return this.messages.getMessages(path);
     }
 
-    public boolean sendMessage(final String path, final MessageReceiver target, final Locale lang, final MessageData... data)
+    public boolean sendMessage(String path, MessageReceiver target, Locale lang, MessageData... data)
     {
         return this.messages.sendMessage(path, target, lang, data);
     }
 
-    public boolean broadcastStaticMessage(final String path, final Locale lang, final MessageData... data)
+    public boolean broadcastStaticMessage(String path, Locale lang, MessageData... data)
     {
         return this.messages.broadcastStaticMessage(path, lang, data);
     }
 
-    public boolean broadcastMessage(final String path, final Locale lang, final MessageData... data)
+    public boolean broadcastMessage(String path, Locale lang, MessageData... data)
     {
         return this.messages.broadcastMessage(path, lang, data);
     }
 
-    public Messages getMessages(final String... path)
+    public Messages getMessages(String... path)
     {
         return this.messages.getMessages(path);
     }

@@ -34,17 +34,16 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
-import com.gotofinal.darkrise.spigot.core.utils.CommandMapUtils;
-import com.gotofinal.darkrise.spigot.core.utils.PlayerUtils;
 import com.gotofinal.darkrise.core.DarkRisePlugin;
 import com.gotofinal.darkrise.core.commands.Command;
 import com.gotofinal.darkrise.core.commands.CommandMap;
 import com.gotofinal.darkrise.core.commands.MainCommand;
 import com.gotofinal.darkrise.core.commands.PluginCommand;
+import com.gotofinal.darkrise.spigot.core.utils.CommandMapUtils;
+import com.gotofinal.darkrise.spigot.core.utils.PlayerUtils;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -67,31 +66,35 @@ public class CommandMapImpl implements CommandMap<CommandSender>
     }
 
     @Override
-    public synchronized void registerCommand(final PluginCommand<CommandSender> pluginCommand)
+    public synchronized void registerCommand(PluginCommand<CommandSender> pluginCommand)
     {
         this.addCommandToMap(pluginCommand.getPlugin().getName(), pluginCommand);
     }
 
     @Override
-    public Set<MainCommand<CommandSender>> getCommandsFromPlugin(final DarkRisePlugin dioritePlugin)
+    public Set<MainCommand<CommandSender>> getCommandsFromPlugin(DarkRisePlugin dioritePlugin)
     {
-        return this.commandMap.values().parallelStream().filter(cmd -> (cmd instanceof PluginCommand) && ((PluginCommand<CommandSender>) cmd).getPlugin().equals(dioritePlugin)).collect(Collectors.toSet());
+        return this.commandMap.values().parallelStream()
+                              .filter(cmd -> (cmd instanceof PluginCommand) && ((PluginCommand<CommandSender>) cmd).getPlugin().equals(dioritePlugin))
+                              .collect(Collectors.toSet());
     }
 
     @Override
-    public Set<MainCommand<CommandSender>> getCommandsFromPlugin(final String plugin)
+    public Set<MainCommand<CommandSender>> getCommandsFromPlugin(String plugin)
     {
-        return this.commandMap.values().parallelStream().filter(cmd -> (cmd instanceof PluginCommand) && ((PluginCommand<CommandSender>) cmd).getPlugin().getName().equalsIgnoreCase(plugin)).collect(Collectors.toSet());
+        return this.commandMap.values().parallelStream().filter(cmd -> (cmd instanceof PluginCommand) &&
+                                                                       ((PluginCommand<CommandSender>) cmd).getPlugin().getName().equalsIgnoreCase(plugin))
+                              .collect(Collectors.toSet());
     }
 
     @Override
-    public Set<MainCommand<CommandSender>> getCommands(final String str)
+    public Set<MainCommand<CommandSender>> getCommands(String str)
     {
         return this.commandMap.values().parallelStream().filter(cmd -> cmd.getName().equalsIgnoreCase(str)).collect(Collectors.toSet());
     }
 
     @Override
-    public Optional<MainCommand<CommandSender>> getCommand(final DarkRisePlugin dioritePlugin, final String str)
+    public Optional<MainCommand<CommandSender>> getCommand(DarkRisePlugin dioritePlugin, String str)
     {
         MainCommand<CommandSender> cmd = this.commandMap.get(dioritePlugin + Command.COMMAND_PLUGIN_SEPARATOR + str);
         if (cmd == null)
@@ -102,14 +105,14 @@ public class CommandMapImpl implements CommandMap<CommandSender>
     }
 
     @Override
-    public Optional<MainCommand<CommandSender>> getCommand(final String str)
+    public Optional<MainCommand<CommandSender>> getCommand(String str)
     {
-        final MainCommand<CommandSender> cmd = this.commandMap.get(str);
+        MainCommand<CommandSender> cmd = this.commandMap.get(str);
         if (cmd != null)
         {
             return Optional.of(cmd);
         }
-        for (final Map.Entry<String, MainCommand<CommandSender>> entry : this.commandMap.entrySet())
+        for (Map.Entry<String, MainCommand<CommandSender>> entry : this.commandMap.entrySet())
         {
             if (entry.getKey().endsWith(Command.COMMAND_PLUGIN_SEPARATOR + str))
             {
@@ -126,15 +129,22 @@ public class CommandMapImpl implements CommandMap<CommandSender>
     }
 
     @Override
-    public List<String> tabComplete(final CommandSender sender, final String cmdLine)
+    public List<String> tabComplete(CommandSender sender, String cmdLine)
     {
-        final String[] args;
+        String[] args;
         if ((cmdLine == null) || cmdLine.isEmpty() || ((args = DioriteStringUtils.splitArguments(cmdLine)).length == 0))
         {
             return this.commandMap.keySet().parallelStream().map(s -> Command.COMMAND_PREFIX + s).collect(Collectors.toList());
         }
-        final String command = args[0];
-        final String[] newArgs;
+//        if (cmdLine.endsWith(" "))
+//        {
+//            String[] temp = new String[args.length + 1];
+//            System.arraycopy(args, 0, temp, 0, args.length);
+//            temp[args.length] = "";
+//            args = temp;
+//        }
+        String command = args[0];
+        String[] newArgs;
         if (args.length == 1)
         {
             newArgs = Command.EMPTY_ARGS;
@@ -144,12 +154,12 @@ public class CommandMapImpl implements CommandMap<CommandSender>
             newArgs = new String[args.length - 1];
             System.arraycopy(args, 1, newArgs, 0, args.length - 1);
         }
-        for (final MainCommand<CommandSender> cmd : this.getSortedCommandList())
+        for (MainCommand<CommandSender> cmd : this.getSortedCommandList())
         {
-            final Matcher matcher = cmd.matcher(command);
+            Matcher matcher = cmd.matcher(command);
             if (matcher.matches())
             {
-                final List<String> result = cmd.tabComplete(sender, command, matcher, newArgs);
+                List<String> result = cmd.tabComplete(sender, command, matcher, newArgs);
                 if (result.isEmpty())
                 {
                     return PlayerUtils.getOnlinePlayersNames(args[args.length - 1]);
@@ -168,27 +178,28 @@ public class CommandMapImpl implements CommandMap<CommandSender>
         {
             return PlayerUtils.getOnlinePlayersNames();
         }
-        final String lcCmd = command.toLowerCase();
-        final List<String> result = this.commandMap.entrySet().parallelStream().filter(this.tabCompeleterFilter.apply(lcCmd)).map(e -> Command.COMMAND_PREFIX + e.getValue().getFullName()).sorted().collect(Collectors.toList());
+        String lcCmd = command.toLowerCase();
+        List<String> result = this.commandMap.entrySet().parallelStream().filter(this.tabCompeleterFilter.apply(lcCmd))
+                                             .map(e -> Command.COMMAND_PREFIX + e.getValue().getFullName()).sorted().collect(Collectors.toList());
         return result.isEmpty() ? this.commandMap.keySet().parallelStream().map(s -> Command.COMMAND_PREFIX + s).collect(Collectors.toList()) : result;
     }
 
     private final Function<String, Predicate<Map.Entry<String, MainCommand<CommandSender>>>> tabCompeleterFilter = lcCmd -> e ->
     {
-        final String key = e.getKey().toLowerCase();
-        final String plugin = key.substring(0, key.indexOf(Command.COMMAND_PLUGIN_SEPARATOR) + 2);
+        String key = e.getKey().toLowerCase();
+        String plugin = key.substring(0, key.indexOf(Command.COMMAND_PLUGIN_SEPARATOR) + 2);
         return (key.startsWith(lcCmd) || (! lcCmd.contains(Command.COMMAND_PLUGIN_SEPARATOR) && key.startsWith(plugin + lcCmd))) && ! key.equals(lcCmd);
     };
 
     @Override
-    public Command<CommandSender> findCommand(final String cmdLine)
+    public Command<CommandSender> findCommand(String cmdLine)
     {
         if ((cmdLine == null) || cmdLine.isEmpty())
         {
             return null;
         }
-        final int index = cmdLine.indexOf(' ');
-        final String command;
+        int index = cmdLine.indexOf(' ');
+        String command;
         if (index == - 1)
         {
             command = cmdLine.toLowerCase();
@@ -197,7 +208,7 @@ public class CommandMapImpl implements CommandMap<CommandSender>
         {
             command = cmdLine.substring(0, index).toLowerCase();
         }
-        for (final MainCommand<CommandSender> cmd : this.getSortedCommandList())
+        for (MainCommand<CommandSender> cmd : this.getSortedCommandList())
         {
             if (cmd.matches(command))
             {
@@ -208,13 +219,13 @@ public class CommandMapImpl implements CommandMap<CommandSender>
     }
 
     @Override
-    public boolean dispatch(final CommandSender sender, final String cmdLine)
+    public boolean dispatch(CommandSender sender, String cmdLine)
     {
         if ((cmdLine == null) || cmdLine.isEmpty())
         {
             return false;
         }
-        final String[] args = DioriteStringUtils.splitArguments(cmdLine);
+        String[] args = DioriteStringUtils.splitArguments(cmdLine);
         if (args.length == 0)
         {
             return false;
@@ -223,8 +234,8 @@ public class CommandMapImpl implements CommandMap<CommandSender>
         {
 //            Bukkit.getConsoleSender().sendMessage(sender.getName() + ": " + Command.COMMAND_PREFIX + cmdLine);
         }
-        final String command = args[0];
-        final String[] newArgs;
+        String command = args[0];
+        String[] newArgs;
         if (args.length == 1)
         {
             newArgs = Command.EMPTY_ARGS;
@@ -234,7 +245,7 @@ public class CommandMapImpl implements CommandMap<CommandSender>
             newArgs = new String[args.length - 1];
             System.arraycopy(args, 1, newArgs, 0, args.length - 1);
         }
-        for (final MainCommand<CommandSender> cmd : this.getSortedCommandList())
+        for (MainCommand<CommandSender> cmd : this.getSortedCommandList())
         {
             if (cmd.tryDispatch(sender, command, newArgs))
             {
@@ -246,7 +257,7 @@ public class CommandMapImpl implements CommandMap<CommandSender>
         return false;
     }
 
-    public synchronized void registerCommand(final MainCommand<CommandSender> command)
+    public synchronized void registerCommand(MainCommand<CommandSender> command)
     {
         if (command instanceof PluginCommand)
         {

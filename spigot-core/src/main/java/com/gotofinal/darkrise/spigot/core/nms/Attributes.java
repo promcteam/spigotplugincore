@@ -1,9 +1,9 @@
 package com.gotofinal.darkrise.spigot.core.nms;
 
-
 import javax.annotation.Nonnull;
 
 import java.util.Iterator;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
 
@@ -13,11 +13,54 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.Maps;
 import com.gotofinal.darkrise.spigot.core.nms.NbtFactory.NbtCompound;
 import com.gotofinal.darkrise.spigot.core.nms.NbtFactory.NbtList;
+import com.gotofinal.darkrise.spigot.core.utils.DeserializationWorker;
+import com.gotofinal.darkrise.spigot.core.utils.SerializationBuilder;
 
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.ItemStack;
+
+import org.diorite.utils.math.DioriteRandomUtils;
 
 public class Attributes
 {
+    public enum Slot
+    {
+        MAIN_HAND("mainhand"),
+        OFF_HAND("offhand"),
+        HEAD("head"),
+        CHEST("chest"),
+        LEGS("legs"),
+        FEET("feet"),
+        ANY(null);
+        private final String value;
+
+        Slot(String value)
+        {
+            this.value = value;
+        }
+
+        public String getValue()
+        {
+            return this.value;
+        }
+
+        public static Slot getSlotFor(String slot)
+        {
+            if (slot == null)
+            {
+                return ANY;
+            }
+            for (Slot s : values())
+            {
+                if (slot.equalsIgnoreCase(s.name()) || slot.equals(s.value))
+                {
+                    return s;
+                }
+            }
+            return ANY;
+        }
+    }
+
     public enum Operation
     {
         ADD_NUMBER(0),
@@ -25,7 +68,7 @@ public class Attributes
         ADD_PERCENTAGE(2);
         private final int id;
 
-        Operation(final int id)
+        Operation(int id)
         {
             this.id = id;
         }
@@ -35,10 +78,10 @@ public class Attributes
             return this.id;
         }
 
-        public static Operation fromId(final int id)
+        public static Operation fromId(int id)
         {
             // Linear scan is very fast for small N
-            for (final Operation op : values())
+            for (Operation op : values())
             {
                 if (op.getId() == id)
                 {
@@ -51,12 +94,12 @@ public class Attributes
 
     public static class AttributeType
     {
-        private static final ConcurrentMap<String, AttributeType> LOOKUP                = Maps.newConcurrentMap();
-        public static final  AttributeType                        GENERIC_MAX_HEALTH    = new AttributeType("generic.maxHealth").register();
-        public static final  AttributeType                        GENERIC_FOLLOW_RANGE  = new AttributeType("generic.followRange").register();
-        public static final  AttributeType                        GENERIC_ATTACK_DAMAGE = new AttributeType("generic.attackDamage").register();
-        public static final AttributeType                        GENERIC_MOVEMENT_SPEED       = new AttributeType("generic.movementSpeed").register();
-        public static final AttributeType                        GENERIC_KNOCKBACK_RESISTANCE = new AttributeType("generic.knockbackResistance").register();
+        private static final ConcurrentMap<String, AttributeType> LOOKUP                       = Maps.newConcurrentMap();
+        public static final  AttributeType                        GENERIC_MAX_HEALTH           = new AttributeType("generic.maxHealth").register();
+        public static final  AttributeType                        GENERIC_FOLLOW_RANGE         = new AttributeType("generic.followRange").register();
+        public static final  AttributeType                        GENERIC_ATTACK_DAMAGE        = new AttributeType("generic.attackDamage").register();
+        public static final  AttributeType                        GENERIC_MOVEMENT_SPEED       = new AttributeType("generic.movementSpeed").register();
+        public static final  AttributeType                        GENERIC_KNOCKBACK_RESISTANCE = new AttributeType("generic.knockbackResistance").register();
 
         private final String minecraftId;
 
@@ -65,9 +108,10 @@ public class Attributes
          * <p>
          * Remember to {@link #register()} the type.
          *
-         * @param minecraftId - the ID of the type.
+         * @param minecraftId
+         *         - the ID of the type.
          */
-        public AttributeType(final String minecraftId)
+        public AttributeType(String minecraftId)
         {
             this.minecraftId = minecraftId;
         }
@@ -90,18 +134,19 @@ public class Attributes
         // Constructors should have no side-effects!
         public AttributeType register()
         {
-            final AttributeType old = LOOKUP.putIfAbsent(this.minecraftId, this);
+            AttributeType old = LOOKUP.putIfAbsent(this.minecraftId, this);
             return (old != null) ? old : this;
         }
 
         /**
          * Retrieve the attribute type associated with a given ID.
          *
-         * @param minecraftId The ID to search for.
+         * @param minecraftId
+         *         The ID to search for.
          *
          * @return The attribute type, or NULL if not found.
          */
-        public static AttributeType fromId(final String minecraftId)
+        public static AttributeType fromId(String minecraftId)
         {
             return LOOKUP.get(minecraftId);
         }
@@ -117,23 +162,41 @@ public class Attributes
         }
     }
 
-    public static class Attribute
+    public static class Attribute implements ConfigurationSerializable
     {
         private final NbtCompound data;
 
-        private Attribute(final Builder builder)
+        public Attribute(Map<String, Object> map)
+        {
+            this.data = NbtFactory.createCompound();
+            DeserializationWorker dw = DeserializationWorker.start(map);
+            this.setAmount(dw.getDouble("value", 1));
+            this.setOperation(dw.getEnum("operation", Operation.ADD_PERCENTAGE));
+            this.setSlot(Slot.getSlotFor(dw.getString("slot", Slot.ANY.name())));
+            this.setAttributeType(AttributeType.fromId(dw.getString("type", AttributeType.GENERIC_MAX_HEALTH.getMinecraftId())));
+            this.setName(dw.getString("name", this.getAttributeType().getMinecraftId() + ":" + DioriteRandomUtils.nextInt(1000)));
+            this.setUUID(dw.getUUID("uuid", UUID.randomUUID()));
+        }
+
+        private Attribute(Builder builder)
         {
             this.data = NbtFactory.createCompound();
             this.setAmount(builder.amount);
             this.setOperation(builder.operation);
+            this.setSlot(builder.slot);
             this.setAttributeType(builder.type);
             this.setName(builder.name);
             this.setUUID(builder.uuid);
         }
 
-        private Attribute(final NbtCompound data)
+        private Attribute(NbtCompound data)
         {
             this.data = data;
+        }
+
+        public Slot getSlot()
+        {
+            return Slot.getSlotFor(this.data.getString("Slot", null));
         }
 
         public double getAmount()
@@ -141,7 +204,7 @@ public class Attributes
             return this.data.getDouble("Amount", 0.0);
         }
 
-        public void setAmount(final double amount)
+        public void setAmount(double amount)
         {
             this.data.put("Amount", amount);
         }
@@ -151,7 +214,19 @@ public class Attributes
             return Operation.fromId(this.data.getInteger("Operation", 0));
         }
 
-        public void setOperation(@Nonnull final Operation operation)
+        public void setSlot(Slot slot)
+        {
+            if (slot.value == null)
+            {
+                this.data.remove("Slot");
+            }
+            else
+            {
+                this.data.put("Slot", slot.value);
+            }
+        }
+
+        public void setOperation(@Nonnull Operation operation)
         {
             Preconditions.checkNotNull(operation, "operation cannot be NULL.");
             this.data.put("Operation", operation.getId());
@@ -162,7 +237,7 @@ public class Attributes
             return AttributeType.fromId(this.data.getString("AttributeName", null));
         }
 
-        public void setAttributeType(@Nonnull final AttributeType type)
+        public void setAttributeType(@Nonnull AttributeType type)
         {
             Preconditions.checkNotNull(type, "type cannot be NULL.");
             this.data.put("AttributeName", type.getMinecraftId());
@@ -173,7 +248,7 @@ public class Attributes
             return this.data.getString("Name", null);
         }
 
-        public void setName(@Nonnull final String name)
+        public void setName(@Nonnull String name)
         {
             Preconditions.checkNotNull(name, "name cannot be NULL.");
             this.data.put("Name", name);
@@ -184,11 +259,19 @@ public class Attributes
             return new UUID(this.data.getLong("UUIDMost", null), this.data.getLong("UUIDLeast", null));
         }
 
-        public void setUUID(@Nonnull final UUID id)
+        public void setUUID(@Nonnull UUID id)
         {
             Preconditions.checkNotNull("id", "id cannot be NULL.");
             this.data.put("UUIDLeast", id.getLeastSignificantBits());
             this.data.put("UUIDMost", id.getMostSignificantBits());
+        }
+
+        @Override
+        public Map<String, Object> serialize()
+        {
+            return SerializationBuilder.start(6).append("type", this.getAttributeType().getMinecraftId()).append("operation", this.getOperation())
+                                       .append("value", this.getAmount()).append("slot", this.getSlot())
+                                       .append("name", this.getName()).append("uuid", this.getUUID().toString()).build();
         }
 
         /**
@@ -206,6 +289,7 @@ public class Attributes
         {
             private double amount;
             private Operation operation = Operation.ADD_NUMBER;
+            private Slot      slot      = Slot.ANY;
             private AttributeType type;
             private String        name;
             private UUID          uuid;
@@ -215,31 +299,37 @@ public class Attributes
                 // Don't make this accessible
             }
 
-            public Builder amount(final double amount)
+            public Builder amount(double amount)
             {
                 this.amount = amount;
                 return this;
             }
 
-            public Builder operation(final Operation operation)
+            public Builder operation(Operation operation)
             {
                 this.operation = operation;
                 return this;
             }
 
-            public Builder type(final AttributeType type)
+            public Builder slot(Slot slot)
+            {
+                this.slot = slot;
+                return this;
+            }
+
+            public Builder type(AttributeType type)
             {
                 this.type = type;
                 return this;
             }
 
-            public Builder name(final String name)
+            public Builder name(String name)
             {
                 this.name = name;
                 return this;
             }
 
-            public Builder uuid(final UUID uuid)
+            public Builder uuid(UUID uuid)
             {
                 this.uuid = uuid;
                 return this;
@@ -256,13 +346,13 @@ public class Attributes
     public final  ItemStack stack;
     private final NbtList   attributes;
 
-    public Attributes(final ItemStack stack)
+    public Attributes(ItemStack stack)
     {
         // Create a CraftItemStack (under the hood)
         this.stack = NbtFactory.getCraftItemStack(stack);
 
         // Load NBT
-        final NbtCompound nbt = NbtFactory.fromItemTag(this.stack);
+        NbtCompound nbt = NbtFactory.fromItemTag(this.stack);
         this.attributes = nbt.getList("AttributeModifiers", true);
     }
 
@@ -289,9 +379,10 @@ public class Attributes
     /**
      * Add a new attribute to the list.
      *
-     * @param attribute - the new attribute.
+     * @param attribute
+     *         - the new attribute.
      */
-    public void add(final Attribute attribute)
+    public void add(Attribute attribute)
     {
         Preconditions.checkNotNull(attribute.getName(), "must specify an attribute name.");
         this.attributes.add(attribute.data);
@@ -302,15 +393,16 @@ public class Attributes
      * <p>
      * The attribute will be removed using its UUID.
      *
-     * @param attribute - the attribute to remove.
+     * @param attribute
+     *         - the attribute to remove.
      *
      * @return TRUE if the attribute was removed, FALSE otherwise.
      */
-    public boolean remove(final Attribute attribute)
+    public boolean remove(Attribute attribute)
     {
-        final UUID uuid = attribute.getUUID();
+        UUID uuid = attribute.getUUID();
 
-        for (final Iterator<Attribute> it = this.values().iterator(); it.hasNext(); )
+        for (Iterator<Attribute> it = this.values().iterator(); it.hasNext(); )
         {
             if (Objects.equal(it.next().getUUID(), uuid))
             {
@@ -329,11 +421,12 @@ public class Attributes
     /**
      * Retrieve the attribute at a given index.
      *
-     * @param index - the index to look up.
+     * @param index
+     *         - the index to look up.
      *
      * @return The attribute at that index.
      */
-    public Attribute get(final int index)
+    public Attribute get(int index)
     {
         return new Attribute((NbtCompound) this.attributes.get(index));
     }
