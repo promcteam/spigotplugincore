@@ -11,6 +11,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Maps;
+import com.gotofinal.darkrise.spigot.core.DarkRiseCore;
 import com.gotofinal.darkrise.spigot.core.nms.NbtFactory.NbtCompound;
 import com.gotofinal.darkrise.spigot.core.nms.NbtFactory.NbtList;
 import com.gotofinal.darkrise.spigot.core.utils.DeserializationWorker;
@@ -100,6 +101,12 @@ public class Attributes
         public static final  AttributeType                        GENERIC_ATTACK_DAMAGE        = new AttributeType("generic.attackDamage").register();
         public static final  AttributeType                        GENERIC_MOVEMENT_SPEED       = new AttributeType("generic.movementSpeed").register();
         public static final  AttributeType                        GENERIC_KNOCKBACK_RESISTANCE = new AttributeType("generic.knockbackResistance").register();
+        public static final  AttributeType                        GENERIC_ARMOR                = new AttributeType("generic.armor").register();
+        public static final  AttributeType                        GENERIC_ARMOR_TOUGHNESS      = new AttributeType("generic.armorToughness").register();
+        public static final  AttributeType                        GENERIC_ATTACK_SPEED         = new AttributeType("generic.attackSpeed").register();
+        public static final  AttributeType                        GENERIC_LUCK                 = new AttributeType("generic.luck").register();
+        public static final  AttributeType                        HORSE_JUMP_STRENGTH          = new AttributeType("horse.jumpStrength").register();
+        public static final  AttributeType                        ZOMBIE_SPAWN_REINFORCEMENTS  = new AttributeType("zombie.spawnReinforcements").register();
 
         private final String minecraftId;
 
@@ -148,7 +155,13 @@ public class Attributes
          */
         public static AttributeType fromId(String minecraftId)
         {
-            return LOOKUP.get(minecraftId);
+            AttributeType attributeType = LOOKUP.get(minecraftId);
+            if (attributeType == null)
+            {
+                DarkRiseCore.getInstance().getLogger().info("Found unknown attribute type: " + minecraftId + ", saved types: " + LOOKUP.keySet());
+                attributeType = new AttributeType(minecraftId).register();
+            }
+            return attributeType;
         }
 
         /**
