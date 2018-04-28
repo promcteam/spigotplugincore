@@ -17,14 +17,22 @@ import org.bukkit.plugin.Plugin;
 public class DelayedCommand implements ConfigurationSerializable
 {
     public static final int TPS = 20;
-    private final CommandType commandType;
-    private final String      command;
-    private final int         delay;
+    private CommandType as;
+    private String cmd;
+    private int         delay;
 
-    public DelayedCommand(final CommandType commandType, final String command, final int delay)
+    public DelayedCommand()
     {
-        this.commandType = commandType;
-        this.command = command;
+        this.as = CommandType.CONSOLE;
+        this.cmd = "";
+        this.delay = 0;
+        System.out.println("Created DelayedCommand with empty constructor.");
+    }
+
+    public DelayedCommand(final CommandType as, final String cmd, final int delay)
+    {
+        this.as = as;
+        this.cmd = cmd;
         this.delay = delay;
     }
 
@@ -32,16 +40,40 @@ public class DelayedCommand implements ConfigurationSerializable
     {
         final DeserializationWorker w = DeserializationWorker.start(map);
         this.delay = w.getInt("delay", 0);
-        this.commandType = w.getEnum("as", CommandType.CONSOLE);
-        this.command = w.getString("cmd");
-        Validate.notEmpty(this.command, "Command can't be empty! " + this);
+        this.as = w.getEnum("as", CommandType.CONSOLE);
+        this.cmd = w.getString("cmd");
+        Validate.notEmpty(this.cmd, "Command can't be empty! " + this);
+    }
+
+    public CommandType getAs() {
+        return as;
+    }
+
+    public String getCmd() {
+        return cmd;
+    }
+
+    public int getDelay() {
+        return delay;
+    }
+
+    public void setAs(CommandType as) {
+        this.as = as;
+    }
+
+    public void setCmd(String cmd) {
+        this.cmd = cmd;
+    }
+
+    public void setDelay(int delay) {
+        this.delay = delay;
     }
 
     public void invoke(final Plugin plugin, final CommandSender target, final Iterator<DelayedCommand> next, final Runnable onEnd, final R... reps)
     {
         final Runnable action = () ->
         {
-            this.commandType.invoke(target, this.command, reps);
+            this.as.invoke(target, this.cmd, reps);
             if ((next != null) && next.hasNext())
             {
                 next.next().invoke(plugin, target, next, onEnd, reps);
@@ -80,12 +112,12 @@ public class DelayedCommand implements ConfigurationSerializable
     @Override
     public Map<String, Object> serialize()
     {
-        return SerializationBuilder.start(3).append("delay", this.delay).append("as", this.commandType).append("cmd", this.command).build();
+        return SerializationBuilder.start(3).append("delay", this.delay).append("as", this.as).append("cmd", this.cmd).build();
     }
 
     @Override
     public String toString()
     {
-        return new org.apache.commons.lang.builder.ToStringBuilder(this, org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE).appendSuper(super.toString()).append("commandType", this.commandType).append("command", this.command).append("delay", this.delay).toString();
+        return new org.apache.commons.lang.builder.ToStringBuilder(this, org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE).appendSuper(super.toString()).append("as", this.as).append("cmd", this.cmd).append("delay", this.delay).toString();
     }
 }

@@ -30,6 +30,7 @@ public class CoreConfig
     @CfgComment("Commands executed for player on login. This placeholders are supported: ")
     @CfgComment("{player} - name of player")
     private List<DelayedCommand> onJoin     = Collections.singletonList(new DelayedCommand(CommandType.CONSOLE, "give {player} cookie 1", 100));
+    private List<DelayedCommand> onFirstJoin = Collections.singletonList(new DelayedCommand(CommandType.CONSOLE, "give {player} cookie 1", 100));
     @CfgComment("Commands executed when player click on block, use type of -1 to ignore type.")
     @CfgComment("Players with 'core.oninteract.bypass' permission will be ignored.")
     private List<CommandBlock>   onInteract = Collections.singletonList(new CommandBlock(Material.WORKBENCH, - 1, null, true, new DelayedCommand(CommandType.CONSOLE, "give {player} cookie 1", 0)));
@@ -49,6 +50,11 @@ public class CoreConfig
     public List<DelayedCommand> getOnJoin()
     {
         return this.onJoin;
+    }
+
+    public List<DelayedCommand> getOnFirstJoin()
+    {
+        return this.onFirstJoin;
     }
 
     public void setOnJoin(final List<DelayedCommand> onJoin)

@@ -53,6 +53,10 @@ public class PlayerListener implements Listener
     public void onJoinHighest(PlayerJoinEvent e)
     {
         DelayedCommand.invoke(this.core, e.getPlayer(), this.core.getCfg().getOnJoin());
+
+        if(!e.getPlayer().hasPlayedBefore()) {
+            DelayedCommand.invoke(this.core, e.getPlayer(), this.core.getCfg().getOnFirstJoin());
+        }
     }
 
     @EventHandler
