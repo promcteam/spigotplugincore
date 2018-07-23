@@ -16,6 +16,7 @@ buildNumber.properties
 *.iml
 
 ## Directory-based project format:
+IDEA/
 .idea/
 # if you remove the above rule, at least ignore the following:
 
