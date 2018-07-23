@@ -6,3 +6,4 @@ load: startup
 loadbefore: [Economy]
 softdepend: [WorldEdit, WorldGuard, ProtocolLib, TerrainControl]
 depend: [LibraryPack]
+api-version: 1.13

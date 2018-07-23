@@ -120,7 +120,7 @@ public class EnchantmentStorageBuilder extends DataBuilder
         final SerializationBuilder b = SerializationBuilder.start(this.enchants.size() + 1).append(super.serialize());
         for (final Map.Entry<Enchantment, Integer> entry : this.enchants.entrySet())
         {
-            b.append(entry.getKey().getName(), entry.getValue());
+            b.append(entry.getKey().getKey().getKey(), entry.getValue());
         }
         return b.build();
     }

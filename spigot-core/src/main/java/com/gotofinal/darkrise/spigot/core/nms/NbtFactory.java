@@ -395,7 +395,7 @@ public class NbtFactory
 
                 // Prepare NBT
                 final Class<?> COMPOUND_CLASS = getMethod(0, Modifier.STATIC, offlinePlayer, "getData").getReturnType();
-                this.BASE_CLASS = COMPOUND_CLASS.getSuperclass();
+                this.BASE_CLASS = COMPOUND_CLASS;
                 this.NBT_GET_TYPE = getMethod(0, Modifier.STATIC, this.BASE_CLASS, "getTypeId");
                 this.NBT_CREATE_TAG = getMethod(Modifier.STATIC, 0, this.BASE_CLASS, "createTag", byte.class);
 
@@ -676,7 +676,6 @@ public class NbtFactory
     /**
      * Convert wrapped List and Map objects into their respective NBT counterparts.
      *
-     * @param name  - the name of the NBT element to create.
      * @param value - the value of the element to create. Can be a List or a Map.
      *
      * @return The NBT element.
@@ -880,12 +879,25 @@ public class NbtFactory
                 return method;
             }
         }
+        // Search interfaces
+        for(Class<?> iface : clazz.getInterfaces())
+        {
+            try
+            {
+                return getMethod(requireMod, bannedMod, iface, methodName, params);
+            }
+            catch(IllegalStateException ignored)
+            {
+
+            }
+        }
+
         // Search in every superclass
         if (clazz.getSuperclass() != null)
         {
             return getMethod(requireMod, bannedMod, clazz.getSuperclass(), methodName, params);
         }
-        throw new IllegalStateException(String.format("Unable to find method %s (%s).", methodName, Arrays.asList(params)));
+        throw new IllegalStateException(String.format("Unable to find method %s (%s) in %s.", methodName, params.length == 0 ? "" : Arrays.asList(params), clazz.getName()));
     }
 
     /**
@@ -914,7 +926,7 @@ public class NbtFactory
                 return field;
             }
         }
-        // Recursively fild the correct field
+        // Recursively find the correct field
         if (clazz.getSuperclass() != null)
         {
             return getField(instance, clazz.getSuperclass(), fieldName);
@@ -984,7 +996,7 @@ public class NbtFactory
         @Override
         public Object put(final String key, final Object value)
         {
-            return this.wrapOutgoing(this.original.put((String) key, this.unwrapIncoming(value)));
+            return this.wrapOutgoing(this.original.put(key, this.unwrapIncoming(value)));
         }
 
         // Performance

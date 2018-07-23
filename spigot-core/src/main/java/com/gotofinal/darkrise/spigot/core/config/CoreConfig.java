@@ -33,7 +33,7 @@ public class CoreConfig
     private List<DelayedCommand> onFirstJoin = Collections.singletonList(new DelayedCommand(CommandType.CONSOLE, "give {player} cookie 1", 100));
     @CfgComment("Commands executed when player click on block, use type of -1 to ignore type.")
     @CfgComment("Players with 'core.oninteract.bypass' permission will be ignored.")
-    private List<CommandBlock>   onInteract = Collections.singletonList(new CommandBlock(Material.WORKBENCH, - 1, null, true, new DelayedCommand(CommandType.CONSOLE, "give {player} cookie 1", 0)));
+    private List<CommandBlock>   onInteract = Collections.singletonList(new CommandBlock(Material.CRAFTING_TABLE, - 1, null, true, new DelayedCommand(CommandType.CONSOLE, "give {player} cookie 1", 0)));
 
     private transient Map<Material, Byte2ObjectMap<CommandBlock>> onInteractMap = new EnumMap<>(Material.class);
 

@@ -27,9 +27,13 @@ public class BlockType
         return this.type;
     }
 
+    @SuppressWarnings("deprecation")
     public boolean apply(final Block block)
     {
-        return block.setTypeIdAndData(this.mat.getId(), this.type, true);
+        block.setType(this.mat);
+        block.getState().setRawData(this.type);
+        block.getState().update();
+        return true;
     }
 
     public String toConfigString()

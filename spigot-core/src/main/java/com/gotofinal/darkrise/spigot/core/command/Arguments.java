@@ -71,6 +71,7 @@ public class Arguments extends com.gotofinal.darkrise.core.commands.Arguments
      *
      * @throws ArrayIndexOutOfBoundsException if {@code args.length > index}
      */
+    @SuppressWarnings("deprecation")
     public OfflinePlayer asOfflinePlayer(final int index) throws ArrayIndexOutOfBoundsException
     {
         return Bukkit.getOfflinePlayer(this.asString(index));

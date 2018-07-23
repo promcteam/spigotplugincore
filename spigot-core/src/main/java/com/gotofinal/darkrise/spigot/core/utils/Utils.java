@@ -147,7 +147,15 @@ public final class Utils
                 try
                 {
                     final int id = Integer.parseInt(mat);
-                    material = Material.getMaterial(id);
+                    Bukkit.getLogger().severe("SpigotCore attempts to get a material by it's id. Please change it to a name. ID: " + mat);
+                    Thread.dumpStack();
+                    for(Material m : Material.class.getEnumConstants())
+                    {
+                        if(m.getId() == id)
+                        {
+                            return m;
+                        }
+                    }
                 } catch (final Exception ignored)
                 {
                     return Material.AIR;

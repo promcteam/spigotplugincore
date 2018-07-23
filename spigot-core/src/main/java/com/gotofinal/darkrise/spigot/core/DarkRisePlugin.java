@@ -163,7 +163,7 @@ public abstract class DarkRisePlugin extends CorePlugin
 
     public void cancelAllTasks()
     {
-        this.getScheduler().cancelAllTasks();
+        this.getScheduler().cancelTasks(this);
     }
 
     public boolean isCurrentlyRunning(int i)
