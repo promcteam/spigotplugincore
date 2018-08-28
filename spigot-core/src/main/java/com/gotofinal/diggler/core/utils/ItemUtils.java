@@ -26,6 +26,13 @@ public final class ItemUtils
         Material material = Material.getMaterial(mat);
         if (material == null)
         {
+            material = Material.getMaterial(mat, true);
+
+            if (material != null)
+            {
+                return material;
+            }
+
             material = Material.matchMaterial(mat);
             if (material == null)
             {

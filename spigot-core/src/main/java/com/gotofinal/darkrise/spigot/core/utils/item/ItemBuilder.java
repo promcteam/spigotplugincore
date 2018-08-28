@@ -452,7 +452,7 @@ public class ItemBuilder implements ConfigurationSerializable
         ItemStack item = new ItemStack(this.material, this.amount, this.durability);
 //        this.applyFunc();
         ItemMeta meta = Bukkit.getItemFactory().getItemMeta(this.material);
-        if (this.name != null)
+        if (this.name != null && this.material != Material.AIR)
         {
             meta.setDisplayName(Utils.fixColors(this.name));
         }
