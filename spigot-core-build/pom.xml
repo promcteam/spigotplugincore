@@ -20,6 +20,14 @@
     <dependencies>
         <dependency>
             <groupId>com.gotofinal.darkrise</groupId>
+            <artifactId>spigot-core-1.13r2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.gotofinal.darkrise</groupId>
+            <artifactId>spigot-core-1.13r1</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.gotofinal.darkrise</groupId>
             <artifactId>spigot-core-1.12r1</artifactId>
         </dependency>
         <dependency>
@@ -51,6 +59,8 @@
                         <configuration>
                             <artifactSet>
                                 <includes>
+                                    <include>com.gotofinal.darkrise:spigot-core-1.13r2</include>
+                                    <include>com.gotofinal.darkrise:spigot-core-1.13r1</include>
                                     <include>com.gotofinal.darkrise:spigot-core-1.12r1</include>
                                     <include>com.gotofinal.darkrise:spigot-core-1.11r1</include>
                                     <include>com.gotofinal.darkrise:spigot-core-1.10r1</include>
