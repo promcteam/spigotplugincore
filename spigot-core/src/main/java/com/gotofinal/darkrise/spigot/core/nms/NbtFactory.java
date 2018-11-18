@@ -61,6 +61,7 @@ public class NbtFactory
         GZIP_COMPRESSION,
     }
 
+    @SuppressWarnings("unused")
     private enum NbtType
     {
         TAG_END(0, Void.class),
@@ -143,6 +144,7 @@ public class NbtFactory
      *
      * @author Kristian
      */
+    @SuppressWarnings("unused")
     public final class NbtCompound extends ConvertedMap
     {
         private NbtCompound(final Object handle)
@@ -333,7 +335,7 @@ public class NbtFactory
      * Represents a root NBT list.
      * See also:
      * <ul>
-     * <li>{@link NbtFactory#createNbtList()}</li>
+     * <li>{@link NbtFactory#createList(Iterable)} ()}</li>
      * <li>{@link NbtFactory#fromList(Object)}</li>
      * </ul>
      *
@@ -395,7 +397,7 @@ public class NbtFactory
 
                 // Prepare NBT
                 final Class<?> COMPOUND_CLASS = getMethod(0, Modifier.STATIC, offlinePlayer, "getData").getReturnType();
-                this.BASE_CLASS = COMPOUND_CLASS;
+                this.BASE_CLASS = COMPOUND_CLASS.getInterfaces()[0];
                 this.NBT_GET_TYPE = getMethod(0, Modifier.STATIC, this.BASE_CLASS, "getTypeId");
                 this.NBT_CREATE_TAG = getMethod(Modifier.STATIC, 0, this.BASE_CLASS, "createTag", byte.class);
 
@@ -456,6 +458,11 @@ public class NbtFactory
     private List<Object> getDataList(final Object handle)
     {
         return (List<Object>) getFieldValue(this.getDataField(NbtType.TAG_LIST, handle), handle);
+    }
+
+    private String getString(final Object handle)
+    {
+        return (String) getFieldValue(this.getDataField(NbtType.TAG_STRING, handle), handle);
     }
 
     /**
@@ -734,6 +741,8 @@ public class NbtFactory
                     return new NbtCompound(nms);
                 case TAG_LIST:
                     return new NbtList(nms);
+                case TAG_STRING:
+                    return getString(nms);
                 default:
                     return getFieldValue(this.getDataField(type, nms), nms);
             }

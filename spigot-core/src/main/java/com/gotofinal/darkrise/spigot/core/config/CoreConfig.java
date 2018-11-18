@@ -7,6 +7,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+import com.gotofinal.darkrise.spigot.core.utils.Utils;
 import com.gotofinal.darkrise.spigot.core.utils.cmds.CommandType;
 import com.gotofinal.darkrise.spigot.core.utils.cmds.DelayedCommand;
 
@@ -24,7 +25,7 @@ public class CoreConfig
 {
     @CfgIntDefault(20)
     @CfgComment("Amount of health that will be visible for player. (real amount will be scaled to this amount)")
-    @CfgComment("Values below 0 will disable this option.")
+    @CfgComment("Values below or equal 0 will disable this option.")
     private double scaleHealth;
 
     @CfgComment("Commands executed for player on login. This placeholders are supported: ")
@@ -33,7 +34,7 @@ public class CoreConfig
     private List<DelayedCommand> onFirstJoin = Collections.singletonList(new DelayedCommand(CommandType.CONSOLE, "give {player} cookie 1", 100));
     @CfgComment("Commands executed when player click on block, use type of -1 to ignore type.")
     @CfgComment("Players with 'core.oninteract.bypass' permission will be ignored.")
-    private List<CommandBlock>   onInteract = Collections.singletonList(new CommandBlock(Material.CRAFTING_TABLE, - 1, null, true, new DelayedCommand(CommandType.CONSOLE, "give {player} cookie 1", 0)));
+    private List<CommandBlock>   onInteract = Collections.singletonList(new CommandBlock(Utils.getMaterial("WORKBENCH"), - 1, null, true, new DelayedCommand(CommandType.CONSOLE, "give {player} cookie 1", 0)));
 
     private transient Map<Material, Byte2ObjectMap<CommandBlock>> onInteractMap = new EnumMap<>(Material.class);
 

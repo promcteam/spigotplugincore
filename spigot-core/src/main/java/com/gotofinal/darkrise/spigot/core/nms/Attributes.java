@@ -93,6 +93,7 @@ public class Attributes
         }
     }
 
+    @SuppressWarnings("unused")
     public static class AttributeType
     {
         private static final ConcurrentMap<String, AttributeType> LOOKUP                       = Maps.newConcurrentMap();
@@ -274,7 +275,7 @@ public class Attributes
 
         public void setUUID(@Nonnull UUID id)
         {
-            Preconditions.checkNotNull("id", "id cannot be NULL.");
+            Preconditions.checkNotNull(id, "id cannot be NULL.");
             this.data.put("UUIDLeast", id.getLeastSignificantBits());
             this.data.put("UUIDMost", id.getMostSignificantBits());
         }
@@ -282,9 +283,14 @@ public class Attributes
         @Override
         public Map<String, Object> serialize()
         {
-            return SerializationBuilder.start(6).append("type", this.getAttributeType().getMinecraftId()).append("operation", this.getOperation())
-                                       .append("value", this.getAmount()).append("slot", this.getSlot())
-                                       .append("name", this.getName()).append("uuid", this.getUUID().toString()).build();
+            return SerializationBuilder.start(6)
+                    .append("type", this.getAttributeType().getMinecraftId())
+                    .append("operation", this.getOperation())
+                    .append("value", this.getAmount())
+                    .append("slot", this.getSlot())
+                    .append("name", this.getName())
+                    .append("uuid", this.getUUID().toString())
+                    .build();
         }
 
         /**

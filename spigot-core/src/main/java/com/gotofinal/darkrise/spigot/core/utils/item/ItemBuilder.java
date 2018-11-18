@@ -78,10 +78,16 @@ public class ItemBuilder implements ConfigurationSerializable
     @Override
     public String toString()
     {
-        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).appendSuper(super.toString()).append("material", this.material)
-                                                                          .append("amount", this.amount).append("durability", this.durability)
-                                                                          .append("name", this.name).append("lore", this.lore).append("enchants", this.enchants)
-                                                                          .append("dataBuilder", this.dataBuilder).toString();
+        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+                .appendSuper(super.toString())
+                .append("material", this.material)
+                .append("amount", this.amount)
+                .append("durability", this.durability)
+                .append("name", this.name)
+                .append("lore", this.lore)
+                .append("enchants", this.enchants)
+                .append("dataBuilder", this.dataBuilder)
+                .toString();
     }
 
     public Material getMaterial()

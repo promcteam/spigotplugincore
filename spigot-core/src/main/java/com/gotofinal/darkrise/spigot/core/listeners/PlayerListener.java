@@ -78,7 +78,7 @@ public class PlayerListener implements Listener
 
     public static void setHealthScale(Player player, double scale)
     {
-        if (scale < 0)
+        if (scale <= 0)
         {
             player.setHealthScaled(false);
             return;
