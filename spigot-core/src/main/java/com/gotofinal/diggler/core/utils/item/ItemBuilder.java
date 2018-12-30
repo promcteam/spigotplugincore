@@ -21,6 +21,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.FireworkEffectMeta;
 import org.bukkit.inventory.meta.FireworkMeta;
@@ -400,9 +401,13 @@ public class ItemBuilder implements ConfigurationSerializable
 
     public ItemStack build()
     {
-        final ItemStack item = new ItemStack(this.material, this.amount, this.durability);
+        ItemStack item = new ItemStack(this.material, this.amount);
 //        this.applyFunc();
         final ItemMeta meta = Bukkit.getItemFactory().getItemMeta(this.material);
+        if (meta instanceof Damageable)
+        {
+            ((Damageable) meta).setDamage(this.durability);
+        }
         if (this.name != null)
         {
             meta.setDisplayName(Utils.fixColors(this.name));
